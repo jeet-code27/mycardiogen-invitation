@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+/* MyCardioGen brand palette (taken from mycardiogen.com) */
+@theme {
+  --color-ink: #0b0302;
+  --color-ink-2: #150605;
+  --color-cocoa: #2f0f03;
+  --color-maroon: #5d0000;
+  --color-blood: #940203;
+  --color-ember: #e8060a;
+  --color-brand: #fd291b;
+  --color-coral: #e63946;
+  --color-blush: #fcd9db;
+  --color-cream: #fffdf2;
+  --color-sand: #f5f0d8;
+  --color-teal: #21868d;
+  --color-cyan: #9af8ff;
+  --color-mint: #b0f3e5;
+
+  --font-serif: var(--font-dm-serif), Georgia, serif;
+  --font-sans: var(--font-oxygen), "DM Sans", system-ui, sans-serif;
+
+  --animate-ecg: ecg 3.2s linear infinite;
+  --animate-shimmer: shimmer 3s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-ring: pulse-ring 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+
+@keyframes ecg {
+  from { stroke-dashoffset: 1000; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes pulse-ring {
+  0% { transform: scale(0.85); opacity: 0.7; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-brand);
+  color: white;
+}
+
+/* Gradient text in the brand's red */
+.text-gradient-red {
+  background: linear-gradient(100deg, #ff8a6b 0%, #fd291b 45%, #e8060a 70%, #ff6a4d 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: var(--animate-shimmer);
+}
+
+.text-gradient-cream {
+  background: linear-gradient(180deg, #fffdf2 0%, #f5e6cf 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Frosted glass panel on dark backgrounds */
+.glass {
+  background: linear-gradient(160deg, rgba(255, 253, 242, 0.07), rgba(255, 253, 242, 0.02));
+  border: 1px solid rgba(255, 253, 242, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Fine hairline divider with a red glint in the middle */
+.hairline {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(253, 41, 27, 0.7), transparent);
+}
+
+/* Subtle film grain over the dark invitation */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
