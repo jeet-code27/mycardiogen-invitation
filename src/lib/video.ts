@@ -2,7 +2,7 @@ export type ParsedVideo =
   | { kind: "iframe"; src: string; thumb?: string }
   | { kind: "file"; src: string; thumb?: string };
 
-const DEFAULT_VIDEO_SRC = "/images/invitation-video.mp4";
+const DEFAULT_VIDEO_SRC = "/images/-new.mp4";
 const DEFAULT_VIDEO_THUMB = "/images/video-thumbnail.jpeg";
 
 /** Turns a pasted YouTube / Vimeo / Google Drive / .mp4 link or local file into something playable. */

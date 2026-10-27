@@ -11,7 +11,7 @@ import type { Doctor, Settings } from "./types";
 const DOCTORS_KEY = "cg:doctors";
 const SETTINGS_KEY = "cg:settings";
 
-export const DEFAULT_SETTINGS: Settings = { videoUrl: "/images/invitation-video.mp4", eventTime: "" };
+export const DEFAULT_SETTINGS: Settings = { videoUrl: "/images/invitation-video-new.mp4", eventTime: "" };
 
 export class StorageNotConfiguredError extends Error {
   constructor() {
@@ -81,7 +81,7 @@ function fileStore(): Store {
       await fs.mkdir(path.dirname(file), { recursive: true });
       await fs.writeFile(file, JSON.stringify(data, null, 2));
     });
-    queue = next.catch(() => {});
+    queue = next.catch(() => { });
     return next;
   }
 
