@@ -20,7 +20,7 @@ export const HOSTS = [
     name: "Dr. Anand Singla",
     role: "Co-founder",
     detail: "Interventional Cardiologist, Chicago",
-    photo: "/team/anand.webp",
+    photo: "/team/anand-new.jpeg",
   },
   {
     name: "Dr. Sonam Chouksey",
