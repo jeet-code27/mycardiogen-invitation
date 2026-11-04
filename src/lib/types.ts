@@ -18,6 +18,8 @@ export interface Doctor {
   lastOpenedAt?: string;
   openCount: number;
   rsvp?: Rsvp;
+  /** Invited as the event's Chief Guest; the invitation says so. */
+  chiefGuest?: boolean;
 }
 
 export interface Settings {
@@ -31,5 +33,6 @@ export interface Settings {
 export interface PublicDoctor {
   slug: string;
   name: string;
+  chiefGuest?: boolean;
   rsvp?: Pick<Rsvp, "status" | "guests">;
 }

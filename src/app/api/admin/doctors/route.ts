@@ -11,14 +11,18 @@ export const GET = handler(
   { admin: true },
 );
 
-/** Body: { entries: { name: string; phone?: string }[] } */
+/** Body: { entries: { name: string; phone?: string; chiefGuest?: boolean }[] } */
 export const POST = handler(
   async (req: Request) => {
     const body = (await req.json().catch(() => ({}))) as {
-      entries?: { name?: string; phone?: string }[];
+      entries?: { name?: string; phone?: string; chiefGuest?: boolean }[];
     };
     const entries = (body.entries ?? [])
-      .map((e) => ({ name: cleanName(String(e.name ?? "")), phone: String(e.phone ?? "").trim() }))
+      .map((e) => ({
+        name: cleanName(String(e.name ?? "")),
+        phone: String(e.phone ?? "").trim(),
+        chiefGuest: e.chiefGuest === true,
+      }))
       .filter((e) => e.name.length > 0);
 
     if (entries.length === 0) return jsonError("Please enter at least one doctor's name.", 400);
@@ -40,6 +44,7 @@ export const POST = handler(
         slug,
         name: entry.name,
         phone: entry.phone.replace(/[^\d+]/g, "") || undefined,
+        chiefGuest: entry.chiefGuest || undefined,
         // Offset by index so bulk-added rows keep their typed order when sorted by date.
         createdAt: new Date(now + i).toISOString(),
         openCount: 0,

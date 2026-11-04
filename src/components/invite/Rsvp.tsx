@@ -85,7 +85,7 @@ export default function Rsvp({
                       <h2 className="mt-8 font-serif text-3xl sm:text-4xl">Thank you, Dr. {doctor.name}!</h2>
                       <p className="mx-auto mt-4 max-w-md leading-relaxed text-cream/70">
                         Your attendance{result.guests > 1 ? " with a guest" : ""} is confirmed. We look forward to
-                        welcoming you personally on {EVENT.dateLong} at {EVENT.venueName}, New Delhi.
+                        welcoming you{doctor.chiefGuest ? " as our Chief Guest" : " personally"} on {EVENT.dateLong} at {EVENT.venueName}, New Delhi.
                       </p>
                       <CalendarButtons eventTime={eventTime} className="mt-8 justify-center" />
                     </>

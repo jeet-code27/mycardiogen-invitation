@@ -6,7 +6,7 @@ import { EVENT } from "./event";
 export const OG_SIZE = { width: 1200, height: 630 };
 
 /** Social / WhatsApp preview card: the 3D heart on the right, the guest's name on the left. */
-export async function renderInviteCard(name?: string) {
+export async function renderInviteCard(name?: string, chiefGuest = false) {
   // Literal paths so the bundler traces exactly these files.
   const [serif, sans, heart, logoSvg] = await Promise.all([
     readFile(path.join(process.cwd(), "assets", "DMSerifDisplay-Regular.ttf")),
@@ -52,13 +52,30 @@ export async function renderInviteCard(name?: string) {
           <img src={logo} width={96} height={70} />
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontFamily: "Oxygen", fontSize: 18, letterSpacing: 6, color: "#9af8ff" }}>
-              {name ? "A PERSONAL INVITATION FOR" : "BY INVITATION ONLY"}
+              {!name ? "BY INVITATION ONLY" : chiefGuest ? "AN INVITATION TO OUR CHIEF GUEST" : "A PERSONAL INVITATION FOR"}
             </div>
             <div style={{ fontFamily: "DM Serif", fontSize: nameSize, color: "#fffdf2", marginTop: 14, lineHeight: 1.05 }}>
               {display}
             </div>
-            <div style={{ fontFamily: "Oxygen", fontSize: 26, color: "rgba(255,253,242,0.72)", marginTop: 22 }}>
-              to the India launch of
+            <div
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                fontFamily: "Oxygen",
+                fontSize: 26,
+                color: "rgba(255,253,242,0.72)",
+                marginTop: 22,
+              }}
+            >
+              {chiefGuest ? (
+                <>
+                  <span>as our&nbsp;</span>
+                  <span style={{ color: "#ffb648", fontFamily: "DM Serif", fontSize: 32 }}>Chief Guest</span>
+                  <span>&nbsp;at the India launch of</span>
+                </>
+              ) : (
+                <span>to the India launch of</span>
+              )}
             </div>
             <div style={{ display: "flex", fontFamily: "DM Serif", fontSize: 66, color: "#fffdf2", marginTop: 4 }}>
               MyCardio<span style={{ color: "#fd291b" }}>Gen</span>

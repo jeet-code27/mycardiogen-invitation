@@ -10,7 +10,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const doctor = await db.getDoctor(slug);
   if (!doctor) return { title: "Invitation not found · MyCardioGen" };
-  const title = `Dr. ${doctor.name}, you're invited · MyCardioGen India Launch`;
+  const title = doctor.chiefGuest
+    ? `Dr. ${doctor.name}, Chief Guest · MyCardioGen India Launch`
+    : `Dr. ${doctor.name}, you're invited · MyCardioGen India Launch`;
   const description = `The India launch of MyCardioGen — ${EVENT.dateLong} at ${EVENT.venueFull}. Please confirm your attendance.`;
   return { title, description, openGraph: { title, description, type: "website" } };
 }
@@ -25,6 +27,7 @@ export default async function InvitationPage({ params }: Props) {
       doctor={{
         slug: doctor.slug,
         name: doctor.name,
+        chiefGuest: doctor.chiefGuest,
         rsvp: doctor.rsvp && { status: doctor.rsvp.status, guests: doctor.rsvp.guests },
       }}
       videoUrl={settings.videoUrl}

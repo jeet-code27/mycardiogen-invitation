@@ -7,10 +7,12 @@ import { EASE } from "./Reveal";
 /** Full-screen "envelope" with a wax seal. Breaking the seal splits the panels open. */
 export default function IntroSeal({
   name,
+  chiefGuest,
   open,
   onOpen,
 }: {
   name: string;
+  chiefGuest?: boolean;
   open: boolean;
   onOpen: () => void;
 }) {
@@ -55,7 +57,7 @@ export default function IntroSeal({
                 transition={{ duration: 1, ease: EASE, delay: 0.2 }}
                 className="text-[11px] font-bold tracking-[0.42em] text-cyan/80 uppercase"
               >
-                A personal invitation for
+                {chiefGuest ? "An invitation to our Chief Guest" : "A personal invitation for"}
               </motion.p>
               <motion.h1
                 initial={{ opacity: 0, y: 16 }}
@@ -65,6 +67,16 @@ export default function IntroSeal({
               >
                 Dr. {name}
               </motion.h1>
+              {chiefGuest && (
+                <motion.p
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, ease: EASE, delay: 0.5 }}
+                  className="text-gradient-gold mt-2 font-serif text-2xl italic sm:text-3xl"
+                >
+                  as Chief Guest
+                </motion.p>
+              )}
             </div>
 
             {/* Seal button positioned exactly at the envelope seam (50% vertical center) */}

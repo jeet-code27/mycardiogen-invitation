@@ -1,13 +1,21 @@
 "use client";
 
 import { motion } from "motion/react";
-import { ArrowDown, CalendarDays, MapPin } from "lucide-react";
+import { ArrowDown, CalendarDays, Crown, MapPin } from "lucide-react";
 import HeartSceneLazy from "@/components/three/HeartSceneLazy";
 import Logo from "@/components/Logo";
 import { EVENT } from "@/lib/event";
 import { EASE } from "./Reveal";
 
-export default function Hero({ name, opened }: { name: string; opened: boolean }) {
+export default function Hero({
+  name,
+  chiefGuest,
+  opened,
+}: {
+  name: string;
+  chiefGuest?: boolean;
+  opened: boolean;
+}) {
   const item = (delay: number) => ({
     initial: { opacity: 0, y: 26, filter: "blur(8px)" },
     animate: opened ? { opacity: 1, y: 0, filter: "blur(0px)" } : {},
@@ -43,8 +51,25 @@ export default function Hero({ name, opened }: { name: string; opened: boolean }
             Dr. {name},
           </motion.h1>
 
+          {chiefGuest && (
+            <motion.div {...item(0.2)} className="mt-4 flex items-center gap-3">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#ffb648]/50 bg-[#ffb648]/10 px-4 py-1.5 text-[11px] font-bold tracking-[0.3em] text-[#ffd28a] uppercase shadow-[0_0_30px_-6px_rgba(255,182,72,0.6)]">
+                <Crown className="size-4" />
+                Chief Guest
+              </span>
+            </motion.div>
+          )}
+
           <motion.p {...item(0.3)} className="mt-6 max-w-md text-base leading-relaxed text-cream/75 sm:text-lg">
-            It is our privilege to invite you to the India launch of
+            {chiefGuest ? (
+              <>
+                It is our privilege to invite you, as our{" "}
+                <span className="text-gradient-gold font-serif text-xl italic">Chief Guest</span>, to the India
+                launch of
+              </>
+            ) : (
+              "It is our privilege to invite you to the India launch of"
+            )}
           </motion.p>
 
           <motion.h2 {...item(0.42)} className="mt-2 font-serif text-5xl leading-none sm:text-7xl">

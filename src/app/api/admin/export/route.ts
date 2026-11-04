@@ -14,6 +14,7 @@ export const GET = handler(
     const doctors = (await db.listDoctors()).sort((a, b) => a.name.localeCompare(b.name));
     const header = [
       "Name",
+      "Chief guest",
       "Invitation link",
       "Phone",
       "RSVP",
@@ -26,6 +27,7 @@ export const GET = handler(
     ];
     const rows = doctors.map((d) => [
       `Dr. ${d.name}`,
+      d.chiefGuest ? "Yes" : "",
       `${origin}/${d.slug}`,
       d.phone,
       d.rsvp ? (d.rsvp.status === "attending" ? "Attending" : "Declined") : "Pending",

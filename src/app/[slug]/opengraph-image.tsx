@@ -8,5 +8,5 @@ export const contentType = "image/png";
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const doctor = await db.getDoctor(slug).catch(() => null);
-  return renderInviteCard(doctor?.name);
+  return renderInviteCard(doctor?.name, doctor?.chiefGuest);
 }

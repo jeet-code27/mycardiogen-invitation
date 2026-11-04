@@ -4,11 +4,13 @@ export function inviteLink(origin: string, slug: string) {
   return `${origin}/${slug}`;
 }
 
-export function whatsappMessage(name: string, link: string) {
+export function whatsappMessage(name: string, link: string, chiefGuest = false) {
   return [
     `Dear Dr. ${name},`,
     "",
-    "It is our privilege to invite you to the India launch of *MyCardioGen* — A Paradigm Shift in Preventive Heart Screening.",
+    chiefGuest
+      ? "It is our privilege to invite you as our *Chief Guest* to the India launch of *MyCardioGen* — A Paradigm Shift in Preventive Heart Screening."
+      : "It is our privilege to invite you to the India launch of *MyCardioGen* — A Paradigm Shift in Preventive Heart Screening.",
     "",
     `📅 ${EVENT.dateLong}`,
     `📍 ${EVENT.venueFull}`,

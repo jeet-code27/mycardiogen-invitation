@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Copy, ExternalLink, ListPlus, LoaderCircle, UserPlus } from "lucide-react";
+import { Copy, Crown, ExternalLink, ListPlus, LoaderCircle, UserPlus } from "lucide-react";
 import type { Doctor } from "@/lib/types";
 import { cleanName, slugify } from "@/lib/slug";
 import { card, ghostBtn, input, primaryBtn, useToast } from "./ui";
@@ -26,6 +26,7 @@ export default function AddDoctors({
   const [mode, setMode] = useState<"single" | "bulk">("single");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [chiefGuest, setChiefGuest] = useState(false);
   const [bulk, setBulk] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -33,7 +34,7 @@ export default function AddDoctors({
 
   const bulkEntries = bulk.split(/\r?\n/).map(parseLine).filter((e) => cleanName(e.name));
 
-  async function create(entries: { name: string; phone?: string }[]) {
+  async function create(entries: { name: string; phone?: string; chiefGuest?: boolean }[]) {
     setBusy(true);
     setError("");
     try {
@@ -48,6 +49,7 @@ export default function AddDoctors({
       setLast(data.created);
       setName("");
       setPhone("");
+      setChiefGuest(false);
       setBulk("");
       toast(data.created.length === 1 ? "Invitation created" : `${data.created.length} invitations created`);
     } catch (err) {
@@ -93,7 +95,7 @@ export default function AddDoctors({
           className="mt-6"
           onSubmit={(e) => {
             e.preventDefault();
-            create([{ name, phone }]);
+            create([{ name, phone, chiefGuest }]);
           }}
         >
           <div className="grid gap-3 sm:grid-cols-[1fr_200px]">
@@ -120,6 +122,22 @@ export default function AddDoctors({
               aria-label="WhatsApp number"
             />
           </div>
+          <label
+            className={`mt-3 inline-flex cursor-pointer items-center gap-2.5 rounded-full border px-4 py-2 text-sm font-bold transition-colors ${
+              chiefGuest
+                ? "border-[#e8a53c] bg-[#fff1d6] text-[#8a5300]"
+                : "border-cocoa/15 bg-white text-cocoa/60 hover:text-cocoa"
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={chiefGuest}
+              onChange={(e) => setChiefGuest(e.target.checked)}
+              className="size-4 accent-[#e8a53c]"
+            />
+            <Crown className="size-4" />
+            Invite as Chief Guest
+          </label>
           <p className="mt-3 truncate font-mono text-xs text-cocoa/50">
             {origin.replace(/^https?:\/\//, "")}/<span className="text-teal">{previewSlug}</span>
           </p>
@@ -161,7 +179,10 @@ export default function AddDoctors({
             className="overflow-hidden"
           >
             <div className="mt-6 rounded-2xl border border-teal/25 bg-teal/5 p-4">
-              <p className="text-sm font-bold text-teal">Ready to send — Dr. {last[0].name}</p>
+              <p className="text-sm font-bold text-teal">
+                Ready to send — Dr. {last[0].name}
+                {last[0].chiefGuest && " (Chief Guest)"}
+              </p>
               <p className="mt-1 truncate font-mono text-sm text-cocoa/80">{inviteLink(origin, last[0].slug)}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
@@ -179,7 +200,7 @@ export default function AddDoctors({
                   rel="noopener noreferrer"
                   href={whatsappUrl(
                     last[0].phone,
-                    whatsappMessage(last[0].name, inviteLink(origin, last[0].slug)),
+                    whatsappMessage(last[0].name, inviteLink(origin, last[0].slug), last[0].chiefGuest),
                   )}
                 >
                   <WhatsAppIcon className="size-4 text-[#25D366]" /> WhatsApp
