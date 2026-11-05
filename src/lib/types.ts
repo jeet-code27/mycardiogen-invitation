@@ -20,6 +20,11 @@ export interface Doctor {
   rsvp?: Rsvp;
   /** Invited as the event's Chief Guest; the invitation says so. */
   chiefGuest?: boolean;
+  /**
+   * Created by an RSVP on the general (home page) invitation. `name` is then the full name
+   * exactly as the guest typed it, which may or may not start with "Dr.".
+   */
+  viaGeneral?: boolean;
 }
 
 export interface Settings {

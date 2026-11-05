@@ -56,6 +56,7 @@ export default function Invitation({
   function open() {
     window.scrollTo({ top: 0 });
     setOpened(true);
+    if (!doctor.slug) return; // general invitation: nothing to track
     fetch("/api/open", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

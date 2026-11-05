@@ -57,7 +57,11 @@ export default function IntroSeal({
                 transition={{ duration: 1, ease: EASE, delay: 0.2 }}
                 className="text-[11px] font-bold tracking-[0.42em] text-cyan/80 uppercase"
               >
-                {chiefGuest ? "An invitation to our Chief Guest" : "A personal invitation for"}
+                {!name
+                  ? "MyCardioGen India Launch"
+                  : chiefGuest
+                    ? "An invitation to our Chief Guest"
+                    : "A personal invitation for"}
               </motion.p>
               <motion.h1
                 initial={{ opacity: 0, y: 16 }}
@@ -65,7 +69,7 @@ export default function IntroSeal({
                 transition={{ duration: 1.1, ease: EASE, delay: 0.35 }}
                 className="text-gradient-cream mt-3 font-serif text-4xl leading-tight sm:text-6xl"
               >
-                Dr. {name}
+                {name ? `Dr. ${name}` : "You're Invited"}
               </motion.h1>
               {chiefGuest && (
                 <motion.p

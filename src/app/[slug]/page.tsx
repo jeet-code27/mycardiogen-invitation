@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function InvitationPage({ params }: Props) {
   const { slug } = await params;
   const [doctor, settings] = await Promise.all([db.getDoctor(slug), db.getSettings()]);
-  if (!doctor) notFound();
+  // General-link guests only exist to hold an RSVP; they have no personal page.
+  if (!doctor || doctor.viaGeneral) notFound();
 
   return (
     <Invitation

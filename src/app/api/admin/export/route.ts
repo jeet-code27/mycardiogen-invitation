@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { handler } from "@/lib/api";
+import { displayName } from "@/lib/slug";
 
 function csvCell(value: unknown): string {
   const s = value === undefined || value === null ? "" : String(value);
@@ -15,6 +16,7 @@ export const GET = handler(
     const header = [
       "Name",
       "Chief guest",
+      "Source",
       "Invitation link",
       "Phone",
       "RSVP",
@@ -26,9 +28,10 @@ export const GET = handler(
       "Times opened",
     ];
     const rows = doctors.map((d) => [
-      `Dr. ${d.name}`,
+      displayName(d),
       d.chiefGuest ? "Yes" : "",
-      `${origin}/${d.slug}`,
+      d.viaGeneral ? "General link" : "Personal link",
+      d.viaGeneral ? `${origin}/` : `${origin}/${d.slug}`,
       d.phone,
       d.rsvp ? (d.rsvp.status === "attending" ? "Attending" : "Declined") : "Pending",
       d.rsvp?.status === "attending" ? d.rsvp.guests : "",

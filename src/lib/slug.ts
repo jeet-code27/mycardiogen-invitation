@@ -1,3 +1,8 @@
+/** How a guest is addressed in the admin: general-link guests keep the name they typed. */
+export function displayName(d: { name: string; viaGeneral?: boolean }): string {
+  return d.viaGeneral ? d.name : `Dr. ${d.name}`;
+}
+
 /** "dr. anil  kapoor" -> "Anil Kapoor" */
 export function cleanName(input: string): string {
   const stripped = input

@@ -9,6 +9,7 @@ import Logo from "@/components/Logo";
 import AddDoctors from "./AddDoctors";
 import SettingsCard from "./SettingsCard";
 import GuestList from "./GuestList";
+import GeneralLink from "./GeneralLink";
 import { ToastProvider, card, ghostBtn } from "./ui";
 
 const noopSubscribe = () => () => {};
@@ -46,7 +47,7 @@ export default function Dashboard({
   const attending = doctors.filter((d) => d.rsvp?.status === "attending");
   const headcount = attending.reduce((n, d) => n + (d.rsvp?.guests ?? 1), 0);
   const stats = [
-    { label: "Invited", value: doctors.length, Icon: Users, tone: "text-cocoa bg-cocoa/5" },
+    { label: "Invited", value: doctors.filter((d) => !d.viaGeneral).length, Icon: Users, tone: "text-cocoa bg-cocoa/5" },
     { label: "Opened", value: doctors.filter((d) => d.firstOpenedAt).length, Icon: Eye, tone: "text-[#a3520c] bg-[#ffe7cd]" },
     {
       label: "Attending",
@@ -109,6 +110,10 @@ export default function Dashboard({
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="mt-6">
+            <GeneralLink origin={origin} responses={doctors.filter((d) => d.viaGeneral).length} />
           </div>
 
           <div className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]">

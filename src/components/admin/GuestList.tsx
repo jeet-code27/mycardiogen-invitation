@@ -3,11 +3,12 @@
 import { useMemo, useState } from "react";
 import { Copy, Crown, Download, ExternalLink, RotateCcw, Search, Trash2 } from "lucide-react";
 import type { Doctor } from "@/lib/types";
+import { displayName } from "@/lib/slug";
 import { card, ghostBtn, iconBtn, useToast } from "./ui";
 import { copyText, inviteLink, whatsappMessage, whatsappUrl } from "./share";
 import WhatsAppIcon from "./WhatsAppIcon";
 
-type Filter = "all" | "attending" | "declined" | "awaiting" | "unopened";
+type Filter = "all" | "attending" | "declined" | "awaiting" | "unopened" | "general";
 
 const FILTERS: [Filter, string][] = [
   ["all", "All"],
@@ -15,6 +16,7 @@ const FILTERS: [Filter, string][] = [
   ["declined", "Declined"],
   ["awaiting", "Awaiting reply"],
   ["unopened", "Not opened"],
+  ["general", "General link"],
 ];
 
 const when = new Intl.DateTimeFormat("en-IN", {
@@ -34,7 +36,7 @@ function StatusBadge({ d }: { d: Doctor }) {
     );
   if (d.rsvp?.status === "declined")
     return <span className="rounded-full bg-cocoa/8 px-3 py-1 text-xs font-bold text-cocoa/60">Declined</span>;
-  if (d.firstOpenedAt)
+  if (d.firstOpenedAt || d.viaGeneral)
     return <span className="rounded-full bg-[#ffe7cd] px-3 py-1 text-xs font-bold text-[#a3520c]">Opened</span>;
   return <span className="rounded-full bg-blush/60 px-3 py-1 text-xs font-bold text-blood">Not opened</span>;
 }
@@ -61,7 +63,8 @@ export default function GuestList({
       if (filter === "attending") return d.rsvp?.status === "attending";
       if (filter === "declined") return d.rsvp?.status === "declined";
       if (filter === "awaiting") return !d.rsvp;
-      if (filter === "unopened") return !d.firstOpenedAt;
+      if (filter === "unopened") return !d.firstOpenedAt && !d.viaGeneral;
+      if (filter === "general") return d.viaGeneral;
       return true;
     });
   }, [doctors, query, filter]);
@@ -80,7 +83,7 @@ export default function GuestList({
   }
 
   async function remove(d: Doctor) {
-    if (!confirm(`Delete the invitation for Dr. ${d.name}? Their link will stop working.`)) return;
+    if (!confirm(`Delete ${displayName(d)}? ${d.viaGeneral ? "Their RSVP will be removed." : "Their link will stop working."}`)) return;
     const res = await fetch(`/api/admin/doctors/${d.slug}`, { method: "DELETE" });
     if (res.ok) {
       onRemove(d.slug);
@@ -101,7 +104,7 @@ export default function GuestList({
   }
 
   async function resetRsvp(d: Doctor) {
-    if (!confirm(`Clear Dr. ${d.name}'s RSVP so they can respond again?`)) return;
+    if (!confirm(`Clear ${displayName(d)}'s RSVP so they can respond again?`)) return;
     const res = await fetch(`/api/admin/doctors/${d.slug}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -168,14 +171,21 @@ export default function GuestList({
               >
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-2 font-serif text-lg">
-                    Dr. {d.name}
+                    {displayName(d)}
+                    {d.viaGeneral && (
+                      <span className="rounded-full bg-teal/10 px-2.5 py-0.5 font-sans text-[11px] font-bold text-teal">
+                        General link
+                      </span>
+                    )}
                     {d.chiefGuest && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-[#fff1d6] px-2.5 py-0.5 font-sans text-[11px] font-bold text-[#8a5300]">
                         <Crown className="size-3" /> Chief Guest
                       </span>
                     )}
                   </p>
-                  <p className="truncate font-mono text-xs text-cocoa/50">{link.replace(/^https?:\/\//, "")}</p>
+                  {!d.viaGeneral && (
+                    <p className="truncate font-mono text-xs text-cocoa/50">{link.replace(/^https?:\/\//, "")}</p>
+                  )}
                   {(d.rsvp?.message || d.rsvp?.phone) && (
                     <p className="mt-1.5 text-sm text-cocoa/70">
                       {d.rsvp.phone && <span className="mr-2 font-bold">{d.rsvp.phone}</span>}
@@ -194,36 +204,40 @@ export default function GuestList({
                   </span>
                 </div>
                 <div className="flex items-center gap-0.5">
-                  <button
-                    type="button"
-                    className={iconBtn}
-                    title="Copy link"
-                    onClick={async () => {
-                      if (await copyText(link)) toast("Link copied");
-                    }}
-                  >
-                    <Copy className="size-4" />
-                  </button>
-                  <a
-                    className={iconBtn}
-                    title="Send on WhatsApp"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={whatsappUrl(d.phone, whatsappMessage(d.name, link, d.chiefGuest))}
-                  >
-                    <WhatsAppIcon className="size-4 text-[#25D366]" />
-                  </a>
-                  <a className={iconBtn} title="Open invitation" target="_blank" rel="noopener noreferrer" href={`/${d.slug}`}>
-                    <ExternalLink className="size-4" />
-                  </a>
-                  <button
-                    type="button"
-                    className={`${iconBtn} ${d.chiefGuest ? "text-[#c98a1c] hover:text-[#8a5300]" : ""}`}
-                    title={d.chiefGuest ? "Remove Chief Guest" : "Make Chief Guest"}
-                    onClick={() => toggleChiefGuest(d)}
-                  >
-                    <Crown className={`size-4 ${d.chiefGuest ? "fill-current" : ""}`} />
-                  </button>
+                  {!d.viaGeneral && (
+                    <>
+                      <button
+                        type="button"
+                        className={iconBtn}
+                        title="Copy link"
+                        onClick={async () => {
+                          if (await copyText(link)) toast("Link copied");
+                        }}
+                      >
+                        <Copy className="size-4" />
+                      </button>
+                      <a
+                        className={iconBtn}
+                        title="Send on WhatsApp"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={whatsappUrl(d.phone, whatsappMessage(d.name, link, d.chiefGuest))}
+                      >
+                        <WhatsAppIcon className="size-4 text-[#25D366]" />
+                      </a>
+                      <a className={iconBtn} title="Open invitation" target="_blank" rel="noopener noreferrer" href={`/${d.slug}`}>
+                        <ExternalLink className="size-4" />
+                      </a>
+                      <button
+                        type="button"
+                        className={`${iconBtn} ${d.chiefGuest ? "text-[#c98a1c] hover:text-[#8a5300]" : ""}`}
+                        title={d.chiefGuest ? "Remove Chief Guest" : "Make Chief Guest"}
+                        onClick={() => toggleChiefGuest(d)}
+                      >
+                        <Crown className={`size-4 ${d.chiefGuest ? "fill-current" : ""}`} />
+                      </button>
+                    </>
+                  )}
                   {d.rsvp && (
                     <button type="button" className={iconBtn} title="Clear RSVP" onClick={() => resetRsvp(d)}>
                       <RotateCcw className="size-4" />

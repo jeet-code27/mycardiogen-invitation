@@ -23,6 +23,23 @@ export function whatsappMessage(name: string, link: string, chiefGuest = false) 
   ].join("\n");
 }
 
+export function generalWhatsappMessage(link: string) {
+  return [
+    "Greetings,",
+    "",
+    "It is our privilege to invite you to the India launch of *MyCardioGen* — A Paradigm Shift in Preventive Heart Screening.",
+    "",
+    `📅 ${EVENT.dateLong}`,
+    `📍 ${EVENT.venueFull}`,
+    "",
+    "View the invitation and RSVP:",
+    link,
+    "",
+    "Warm regards,",
+    "Dr. Anand Singla & Dr. Sonam Chouksey",
+  ].join("\n");
+}
+
 /** wa.me link; a 10-digit Indian mobile gets the +91 country code. */
 export function whatsappUrl(phone: string | undefined, text: string) {
   let digits = (phone ?? "").replace(/\D/g, "");

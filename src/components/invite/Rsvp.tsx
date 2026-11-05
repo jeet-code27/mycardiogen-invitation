@@ -10,6 +10,24 @@ import Reveal, { EASE, Eyebrow } from "./Reveal";
 
 type Result = NonNullable<PublicDoctor["rsvp"]>;
 
+const GENERAL_KEY = "mycardiogen-general-rsvp";
+
+function readGeneralSlug(): string | undefined {
+  try {
+    return localStorage.getItem(GENERAL_KEY) ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function saveGeneralSlug(slug: string) {
+  try {
+    localStorage.setItem(GENERAL_KEY, slug);
+  } catch {
+    // Private mode etc. A repeat reply would then create a second entry, which admin can delete.
+  }
+}
+
 export default function Rsvp({
   doctor,
   eventTime,
@@ -21,23 +39,36 @@ export default function Rsvp({
   const [choice, setChoice] = useState<RsvpStatus | null>(null);
   const [guests, setGuests] = useState(1);
   const [phone, setPhone] = useState("");
+  // General invitation (no doctor): the guest types their own name.
+  const general = !doctor.slug;
+  const [guestName, setGuestName] = useState("");
+  const displayName = general ? guestName.trim() : `Dr. ${doctor.name}`;
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!choice) return;
+    if (!choice || (general && !guestName.trim())) return;
     setBusy(true);
     setError("");
     try {
       const res = await fetch("/api/rsvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug: doctor.slug, status: choice, guests, phone, message }),
+        body: JSON.stringify({
+          // A general guest who already replied from this browser updates the same entry.
+          slug: general ? readGeneralSlug() : doctor.slug,
+          name: general ? guestName : undefined,
+          status: choice,
+          guests,
+          phone,
+          message,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Something went wrong.");
+      if (general && data.slug) saveGeneralSlug(data.slug);
       setResult(data.rsvp);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
@@ -82,7 +113,7 @@ export default function Rsvp({
                   </motion.span>
                   {result.status === "attending" ? (
                     <>
-                      <h2 className="mt-8 font-serif text-3xl sm:text-4xl">Thank you, Dr. {doctor.name}!</h2>
+                      <h2 className="mt-8 font-serif text-3xl sm:text-4xl">Thank you, {displayName}!</h2>
                       <p className="mx-auto mt-4 max-w-md leading-relaxed text-cream/70">
                         Your attendance{result.guests > 1 ? " with a guest" : ""} is confirmed. We look forward to
                         welcoming you{doctor.chiefGuest ? " as our Chief Guest" : " personally"} on {EVENT.dateLong} at {EVENT.venueName}, New Delhi.
@@ -93,7 +124,7 @@ export default function Rsvp({
                     <>
                       <h2 className="mt-8 font-serif text-3xl sm:text-4xl">Thank you for letting us know</h2>
                       <p className="mx-auto mt-4 max-w-md leading-relaxed text-cream/70">
-                        You will be missed, Dr. {doctor.name}. We hope to have the pleasure of meeting you soon.
+                        You will be missed, {displayName}. We hope to have the pleasure of meeting you soon.
                       </p>
                     </>
                   )}
@@ -179,6 +210,20 @@ export default function Rsvp({
                         className="overflow-hidden"
                       >
                         <div className="grid gap-4 pt-6 text-left">
+                          {general && (
+                            <label className="block">
+                              <span className="mb-2 block text-sm font-bold text-cream/70">Your full name</span>
+                              <input
+                                value={guestName}
+                                onChange={(e) => setGuestName(e.target.value)}
+                                required
+                                maxLength={80}
+                                autoComplete="name"
+                                placeholder="Dr. Anil Kapoor"
+                                className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-cream placeholder:text-cream/30 focus:border-brand/60 focus:outline-none"
+                              />
+                            </label>
+                          )}
                           {choice === "attending" && (
                             <div>
                               <p className="mb-2 text-sm font-bold text-cream/70">Attending</p>
@@ -233,7 +278,7 @@ export default function Rsvp({
 
                   <button
                     type="submit"
-                    disabled={!choice || busy}
+                    disabled={!choice || busy || (general && !guestName.trim())}
                     className="group relative mt-8 inline-flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#ff7a1a] via-brand to-ember px-8 py-4 font-bold tracking-wide text-white shadow-[0_14px_50px_-10px_rgba(253,41,27,0.9)] transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 sm:w-auto sm:min-w-64"
                   >
                     <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
