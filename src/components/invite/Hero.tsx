@@ -41,9 +41,12 @@ export default function Hero({
 
       <div className="pointer-events-none relative z-10 mx-auto flex min-h-[calc(100svh-90px)] max-w-7xl items-end px-6 pb-24 sm:px-10 md:items-center md:pb-16">
         <div className="pointer-events-auto max-w-xl pt-[40svh] md:pt-0">
-          <motion.p {...item(0)} className="font-serif text-2xl text-cream/70 italic sm:text-3xl">
-            {name ? "Dear" : "Dear Guest,"}
-          </motion.p>
+          {/* The general invitation opens straight on "You're Invited" with no salutation. */}
+          {name && (
+            <motion.p {...item(0)} className="font-serif text-2xl text-cream/70 italic sm:text-3xl">
+              Dear
+            </motion.p>
+          )}
           <motion.h1
             {...item(0.12)}
             className="text-gradient-cream mt-1 font-serif text-[2.6rem] leading-[1.05] sm:text-6xl lg:text-7xl"
