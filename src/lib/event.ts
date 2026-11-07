@@ -28,6 +28,13 @@ export const HOSTS = [
     detail: "",
     photo: "/team/dr-sonam-chouksey-2026-11.webp",
   },
+  {
+    name: "Dr. Ravinder Goyal",
+    role: "Board of Directors",
+    detail: "Serial Entrepreneur · Tech Innovator · Author",
+    photo: "/team/dr-ravinder-goyal-2026-11.webp",
+    bio: "A visionary entrepreneur with nearly three decades of experience in technology, skilling and innovation. As Co-Founder of Erekrut, he has pioneered transformative solutions in recruitment and education, impacting over 200,000 lives across 650+ centres. A recipient of the Golden Peacock and FICCI Skills Champion Awards, he continues to inspire through entrepreneurship, innovation and over 1,000 motivational writings.",
+  },
 ] as const;
 
 /** Event start as a Date. Without a time the countdown targets the start of the day (IST). */

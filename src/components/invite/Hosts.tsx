@@ -5,7 +5,9 @@ import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { HOSTS } from "@/lib/event";
 import Reveal, { Eyebrow } from "./Reveal";
 
-function TiltCard({ host }: { host: (typeof HOSTS)[number] }) {
+type Host = (typeof HOSTS)[number] & { bio?: string };
+
+function TiltCard({ host }: { host: Host }) {
   const mx = useMotionValue(0.5);
   const my = useMotionValue(0.5);
   const rx = useSpring(useTransform(my, [0, 1], [8, -8]), { stiffness: 150, damping: 15 });
@@ -38,7 +40,7 @@ function TiltCard({ host }: { host: (typeof HOSTS)[number] }) {
               src={host.photo}
               alt={host.name}
               fill
-              sizes="(min-width: 768px) 420px, 90vw"
+              sizes="(min-width: 1024px) 340px, (min-width: 640px) 45vw, 90vw"
               className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.04]"
             />
             <div className="absolute inset-0 bg-[linear-gradient(to_top,#0b0302_6%,rgba(11,3,2,0.55)_32%,transparent_60%)]" />
@@ -46,7 +48,7 @@ function TiltCard({ host }: { host: (typeof HOSTS)[number] }) {
           </div>
           <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8" style={{ transform: "translateZ(40px)" }}>
             <p className="text-[11px] font-bold tracking-[0.32em] text-cyan uppercase">{host.role}</p>
-            <h3 className="mt-2 font-serif text-3xl sm:text-4xl">{host.name}</h3>
+            <h3 className="mt-2 font-serif text-3xl">{host.name}</h3>
             {host.detail && <p className="mt-1.5 text-sm text-cream/70">{host.detail}</p>}
           </div>
         </div>
@@ -58,17 +60,18 @@ function TiltCard({ host }: { host: (typeof HOSTS)[number] }) {
 export default function Hosts() {
   return (
     <section className="relative px-6 py-20 sm:px-10 sm:py-28">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-6xl">
         <Reveal className="text-center">
           <Eyebrow className="justify-center">Your Hosts</Eyebrow>
           <h2 className="mt-6 font-serif text-3xl sm:text-5xl">
-            Hosted by the <span className="text-gradient-red italic">Founders</span>
+            Hosted by our <span className="text-gradient-red italic">Founders</span> &amp; Board
           </h2>
         </Reveal>
-        <div className="mx-auto mt-14 grid max-w-4xl gap-8 sm:grid-cols-2 sm:gap-10">
-          {HOSTS.map((h, i) => (
+        <div className="mx-auto mt-14 grid max-w-md gap-10 sm:max-w-none sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          {(HOSTS as readonly Host[]).map((h, i) => (
             <Reveal key={h.name} delay={0.12 * i}>
               <TiltCard host={h} />
+              {h.bio && <p className="mt-5 px-2 text-sm leading-relaxed text-cream/60">{h.bio}</p>}
             </Reveal>
           ))}
         </div>
