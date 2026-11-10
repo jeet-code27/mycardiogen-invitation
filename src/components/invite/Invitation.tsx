@@ -80,7 +80,7 @@ export default function Invitation({
         <Reveal>
           <p className="font-serif text-lg text-cream/60 italic">With warm regards,</p>
           <p className="mt-3 font-serif text-2xl sm:text-3xl">Dr. Anand Singla &amp; Dr. Sonam Chouksey</p>
-          <p className="mt-1 text-sm tracking-wide text-cream/50">Co-founders, MyCardioGen</p>
+          <p className="mt-1 text-sm tracking-wide text-cream/50">MyCardioGen</p>
           <div className="hairline mx-auto my-10 max-w-md" />
           <Logo className="mx-auto h-12 w-auto opacity-90" />
           <a

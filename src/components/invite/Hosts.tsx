@@ -102,7 +102,7 @@ export default function Hosts() {
         <Reveal className="text-center">
           <Eyebrow className="justify-center">Your Hosts</Eyebrow>
           <h2 className="mt-6 font-serif text-3xl sm:text-5xl">
-            Hosted by our <span className="text-gradient-red italic">Founders</span> &amp; Board
+            Hosted by our <span className="text-gradient-red italic">Leadership</span>
           </h2>
         </Reveal>
         <div className="mx-auto mt-14 grid max-w-md gap-10 sm:max-w-none sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">

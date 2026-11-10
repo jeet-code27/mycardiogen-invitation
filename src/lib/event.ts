@@ -18,13 +18,13 @@ export const EVENT = {
 export const HOSTS = [
   {
     name: "Dr. Anand Singla",
-    role: "Co-founder",
+    role: "CEO & Founder",
     detail: "Interventional Cardiologist, Chicago",
     photo: "/team/dr-anand-singla-2026-11.webp",
   },
   {
     name: "Dr. Sonam Chouksey",
-    role: "Co-founder",
+    role: "Chief Innovation Officer & Longevity Expert",
     detail: "",
     photo: "/team/dr-sonam-chouksey-2026-11.webp",
   },
