@@ -2,12 +2,15 @@ export type ParsedVideo =
   | { kind: "iframe"; src: string; thumb?: string }
   | { kind: "file"; src: string; thumb?: string };
 
-const DEFAULT_VIDEO_SRC = "/images/-new.mp4";
+/** The founders' video shipped with the site. New files get a new name so no cache serves the old one. */
+export const DEFAULT_VIDEO_SRC = "/images/mycardiogen-e-invite-2026-11.mp4";
 const DEFAULT_VIDEO_THUMB = "/images/video-thumbnail.jpeg";
 
 /** Turns a pasted YouTube / Vimeo / Google Drive / .mp4 link or local file into something playable. */
 export function parseVideo(url?: string | null): ParsedVideo | null {
-  const raw = (url ?? "").trim() || DEFAULT_VIDEO_SRC;
+  let raw = (url ?? "").trim() || DEFAULT_VIDEO_SRC;
+  // Older builds pointed at local files that have since been replaced.
+  if (raw.startsWith("/images/") && raw !== DEFAULT_VIDEO_SRC) raw = DEFAULT_VIDEO_SRC;
   if (!raw) return null;
 
   // Local file or relative path

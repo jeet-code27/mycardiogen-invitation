@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { Redis } from "@upstash/redis";
 import type { Doctor, Settings } from "./types";
+import { DEFAULT_VIDEO_SRC } from "./video";
 
 /**
  * Storage: Upstash Redis in production (Vercel Marketplace sets KV_REST_API_* or
@@ -11,7 +12,7 @@ import type { Doctor, Settings } from "./types";
 const DOCTORS_KEY = "cg:doctors";
 const SETTINGS_KEY = "cg:settings";
 
-export const DEFAULT_SETTINGS: Settings = { videoUrl: "/images/invitation-video-new.mp4", eventTime: "" };
+export const DEFAULT_SETTINGS: Settings = { videoUrl: DEFAULT_VIDEO_SRC, eventTime: "" };
 
 export class StorageNotConfiguredError extends Error {
   constructor() {
