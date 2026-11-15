@@ -15,12 +15,6 @@ function TiltCard({ host }: { host: Host }) {
   const my = useMotionValue(0.5);
   const rx = useSpring(useTransform(my, [0, 1], [8, -8]), { stiffness: 150, damping: 15 });
   const ry = useSpring(useTransform(mx, [0, 1], [-10, 10]), { stiffness: 150, damping: 15 });
-  const glareX = useTransform(mx, [0, 1], ["0%", "100%"]);
-  const glareY = useTransform(my, [0, 1], ["0%", "100%"]);
-  const glare = useTransform(
-    [glareX, glareY],
-    ([x, y]) => `radial-gradient(circle at ${x} ${y}, rgba(255,255,255,0.22), transparent 50%)`,
-  );
 
   return (
     <div className="[perspective:1100px]">
@@ -47,7 +41,6 @@ function TiltCard({ host }: { host: Host }) {
               className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.04]"
             />
             <div className="absolute inset-0 bg-[linear-gradient(to_top,#0b0302_6%,rgba(11,3,2,0.55)_32%,transparent_60%)]" />
-            <motion.div className="pointer-events-none absolute inset-0 mix-blend-overlay" style={{ background: glare }} />
           </div>
           <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8" style={{ transform: "translateZ(40px)" }}>
             <p className="text-[11px] font-bold tracking-[0.32em] text-cyan uppercase">{host.role}</p>
