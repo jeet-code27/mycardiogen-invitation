@@ -4,10 +4,35 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Copy, Crown, ExternalLink, ListPlus, LoaderCircle, UserPlus } from "lucide-react";
 import type { Doctor } from "@/lib/types";
-import { cleanName, slugify } from "@/lib/slug";
+import { TITLES, cleanName, displayName, parseGuest, slugify } from "@/lib/slug";
 import { card, ghostBtn, input, primaryBtn, useToast } from "./ui";
 import { copyText, inviteLink, whatsappMessage, whatsappUrl } from "./share";
 import WhatsAppIcon from "./WhatsAppIcon";
+
+function TitleSelect({
+  value,
+  onChange,
+  className = "",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  className?: string;
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      aria-label="Title"
+      className={`${input} cursor-pointer font-serif ${className}`}
+    >
+      {TITLES.map((t) => (
+        <option key={t} value={t}>
+          {t || "No title"}
+        </option>
+      ))}
+    </select>
+  );
+}
 
 /** "Anil Kapoor, 98765 43210" -> { name, phone } */
 function parseLine(line: string) {
@@ -27,6 +52,8 @@ export default function AddDoctors({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [chiefGuest, setChiefGuest] = useState(false);
+  // Title used when a name is typed without one ("Mr. Bipin Gupta" keeps its own).
+  const [title, setTitle] = useState<string>("Dr.");
   const [bulk, setBulk] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -34,7 +61,7 @@ export default function AddDoctors({
 
   const bulkEntries = bulk.split(/\r?\n/).map(parseLine).filter((e) => cleanName(e.name));
 
-  async function create(entries: { name: string; phone?: string; chiefGuest?: boolean }[]) {
+  async function create(entries: { name: string; phone?: string; chiefGuest?: boolean; defaultTitle?: string }[]) {
     setBusy(true);
     setError("");
     try {
@@ -59,7 +86,8 @@ export default function AddDoctors({
     }
   }
 
-  const previewSlug = cleanName(name) ? slugify(name) : "dr-anil-kapoor";
+  const preview = parseGuest(name || "Anil Kapoor", title);
+  const previewSlug = slugify(preview.name, preview.title);
 
   return (
     <div className={`${card} p-6 sm:p-8`}>
@@ -95,16 +123,14 @@ export default function AddDoctors({
           className="mt-6"
           onSubmit={(e) => {
             e.preventDefault();
-            create([{ name, phone, chiefGuest }]);
+            create([{ name, phone, chiefGuest, defaultTitle: title }]);
           }}
         >
-          <div className="grid gap-3 sm:grid-cols-[1fr_200px]">
+          <div className="grid gap-3 sm:grid-cols-[110px_1fr_200px]">
+            <TitleSelect value={title} onChange={setTitle} />
             <label className="relative block">
-              <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 font-serif text-cocoa/50">
-                Dr.
-              </span>
               <input
-                className={`${input} pl-12`}
+                className={input}
                 placeholder="Anil Kapoor"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -151,12 +177,16 @@ export default function AddDoctors({
           className="mt-6"
           onSubmit={(e) => {
             e.preventDefault();
-            create(bulkEntries);
+            create(bulkEntries.map((e) => ({ ...e, defaultTitle: title })));
           }}
         >
+          <label className="mb-3 flex flex-wrap items-center gap-3 text-sm font-bold text-cocoa/70">
+            Title for names typed without one
+            <TitleSelect value={title} onChange={setTitle} className="w-28" />
+          </label>
           <textarea
             className={`${input} min-h-40 font-mono text-sm`}
-            placeholder={"One doctor per line. Phone is optional:\nAnil Kapoor, 9876543210\nPriya Sharma\nRahul Mehta, +91 98765 43210"}
+            placeholder={"One guest per line. Phone is optional:\nAnil Kapoor, 9876543210\nMr. Bipin Gupta, 9872034436\nRahul Mehta, +91 98765 43210"}
             value={bulk}
             onChange={(e) => setBulk(e.target.value)}
             aria-label="Doctor names, one per line"
@@ -180,7 +210,7 @@ export default function AddDoctors({
           >
             <div className="mt-6 rounded-2xl border border-teal/25 bg-teal/5 p-4">
               <p className="text-sm font-bold text-teal">
-                Ready to send — Dr. {last[0].name}
+                Ready to send — {displayName(last[0])}
                 {last[0].chiefGuest && " (Chief Guest)"}
               </p>
               <p className="mt-1 truncate font-mono text-sm text-cocoa/80">{inviteLink(origin, last[0].slug)}</p>
@@ -200,7 +230,7 @@ export default function AddDoctors({
                   rel="noopener noreferrer"
                   href={whatsappUrl(
                     last[0].phone,
-                    whatsappMessage(last[0].name, inviteLink(origin, last[0].slug), last[0].chiefGuest),
+                    whatsappMessage(displayName(last[0]), inviteLink(origin, last[0].slug), last[0].chiefGuest),
                   )}
                 >
                   <WhatsAppIcon className="size-4 text-[#25D366]" /> WhatsApp

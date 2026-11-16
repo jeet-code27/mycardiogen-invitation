@@ -42,7 +42,7 @@ export default function Rsvp({
   // General invitation (no doctor): the guest types their own name.
   const general = !doctor.slug;
   const [guestName, setGuestName] = useState("");
-  const displayName = general ? guestName.trim() : `Dr. ${doctor.name}`;
+  const displayName = general ? guestName.trim() : doctor.name;
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");

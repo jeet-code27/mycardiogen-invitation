@@ -27,7 +27,7 @@ export const POST = handler(async (req: Request) => {
   if (doctor && !doctor.viaGeneral && name) doctor = null; // never let a general reply touch a personal invite
   if (!doctor) {
     if (!name) return jsonError(body.slug ? "Invitation not found." : "Please enter your name.", body.slug ? 404 : 400);
-    const base = slugify(name).replace(/^dr-/, "");
+    const base = slugify(name, "");
     doctor = {
       slug: `guest-${base}-${randomBytes(3).toString("hex")}`,
       name,

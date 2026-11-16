@@ -10,8 +10,10 @@ export interface Rsvp {
 
 export interface Doctor {
   slug: string;
-  /** Display name without the "Dr." prefix, e.g. "Anil Kapoor". */
+  /** Name without any title, e.g. "Anil Kapoor". */
   name: string;
+  /** "Mr.", "Mrs.", "Ms.", "Prof." or "" for none. Missing means "Dr." (the original default). */
+  title?: string;
   phone?: string;
   createdAt: string;
   firstOpenedAt?: string;
@@ -37,6 +39,7 @@ export interface Settings {
 /** The subset of a doctor that is safe to send to the public invitation page. */
 export interface PublicDoctor {
   slug: string;
+  /** Full name as addressed, title included ("Dr. Anil Kapoor"); empty for the general invitation. */
   name: string;
   chiefGuest?: boolean;
   rsvp?: Pick<Rsvp, "status" | "guests">;

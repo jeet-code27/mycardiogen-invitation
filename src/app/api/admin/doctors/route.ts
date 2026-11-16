@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { handler, jsonError } from "@/lib/api";
-import { cleanName, slugify } from "@/lib/slug";
+import { TITLES, parseGuest, slugify } from "@/lib/slug";
 import type { Doctor } from "@/lib/types";
 
 const byNewest = (a: Doctor, b: Doctor) => b.createdAt.localeCompare(a.createdAt);
@@ -11,18 +11,26 @@ export const GET = handler(
   { admin: true },
 );
 
-/** Body: { entries: { name: string; phone?: string; chiefGuest?: boolean }[] } */
+/**
+ * Body: { entries: { name, phone?, chiefGuest?, defaultTitle? }[] }. A title typed in the name
+ * ("Mr. Bipin Gupta") wins; otherwise `defaultTitle` (one of TITLES) applies, else "Dr.".
+ */
 export const POST = handler(
   async (req: Request) => {
     const body = (await req.json().catch(() => ({}))) as {
-      entries?: { name?: string; phone?: string; chiefGuest?: boolean }[];
+      entries?: { name?: string; phone?: string; chiefGuest?: boolean; defaultTitle?: string }[];
     };
     const entries = (body.entries ?? [])
-      .map((e) => ({
-        name: cleanName(String(e.name ?? "")),
-        phone: String(e.phone ?? "").trim(),
-        chiefGuest: e.chiefGuest === true,
-      }))
+      .map((e) => {
+        const fallback = (TITLES as readonly string[]).includes(String(e.defaultTitle))
+          ? String(e.defaultTitle)
+          : "Dr.";
+        return {
+          ...parseGuest(String(e.name ?? ""), fallback),
+          phone: String(e.phone ?? "").trim(),
+          chiefGuest: e.chiefGuest === true,
+        };
+      })
       .filter((e) => e.name.length > 0);
 
     if (entries.length === 0) return jsonError("Please enter at least one doctor's name.", 400);
@@ -35,7 +43,7 @@ export const POST = handler(
 
     for (const [i, entry] of entries.entries()) {
       // Two different doctors can share a name; give the second one a numbered link.
-      const base = slugify(entry.name);
+      const base = slugify(entry.name, entry.title);
       let slug = base;
       for (let n = 2; taken.has(slug); n++) slug = `${base}-${n}`;
       taken.add(slug);
@@ -43,6 +51,8 @@ export const POST = handler(
       const doctor: Doctor = {
         slug,
         name: entry.name,
+        // Stored only when it isn't "Dr.", so older records and new doctors look the same.
+        title: entry.title === "Dr." ? undefined : entry.title,
         phone: entry.phone.replace(/[^\d+]/g, "") || undefined,
         chiefGuest: entry.chiefGuest || undefined,
         // Offset by index so bulk-added rows keep their typed order when sorted by date.

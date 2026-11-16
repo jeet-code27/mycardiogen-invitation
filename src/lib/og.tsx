@@ -20,7 +20,7 @@ export async function renderInviteCard(name?: string, chiefGuest = false) {
   ).toString("base64")}`;
   const heartSrc = `data:image/jpeg;base64,${heart.toString("base64")}`;
 
-  const display = name ? `Dr. ${name}` : "You're Invited";
+  const display = name || "You're Invited";
   const nameSize = display.length > 24 ? 50 : display.length > 18 ? 60 : 72;
 
   return new ImageResponse(

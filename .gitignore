@@ -44,3 +44,6 @@ next-env.d.ts
 
 # local data store
 /.data
+
+# guest lists with links and phone numbers (private)
+/exports

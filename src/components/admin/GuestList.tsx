@@ -99,7 +99,7 @@ export default function GuestList({
     });
     if (res.ok) {
       onChange((await res.json()).doctor);
-      toast(d.chiefGuest ? "Removed Chief Guest" : `Dr. ${d.name} is now Chief Guest`);
+      toast(d.chiefGuest ? "Removed Chief Guest" : `${displayName(d)} is now Chief Guest`);
     } else toast("Could not update", "error");
   }
 
@@ -221,7 +221,7 @@ export default function GuestList({
                         title="Send on WhatsApp"
                         target="_blank"
                         rel="noopener noreferrer"
-                        href={whatsappUrl(d.phone, whatsappMessage(d.name, link, d.chiefGuest))}
+                        href={whatsappUrl(d.phone, whatsappMessage(displayName(d), link, d.chiefGuest))}
                       >
                         <WhatsAppIcon className="size-4 text-[#25D366]" />
                       </a>

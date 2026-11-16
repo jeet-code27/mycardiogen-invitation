@@ -69,7 +69,7 @@ export default function IntroSeal({
                 transition={{ duration: 1.1, ease: EASE, delay: 0.35 }}
                 className="text-gradient-cream mt-3 font-serif text-4xl leading-tight sm:text-6xl"
               >
-                {name ? `Dr. ${name}` : "You're Invited"}
+                {name || "You're Invited"}
               </motion.h1>
               {chiefGuest && (
                 <motion.p

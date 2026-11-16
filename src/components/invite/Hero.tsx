@@ -51,7 +51,7 @@ export default function Hero({
             {...item(0.12)}
             className="text-gradient-cream mt-1 font-serif text-[2.6rem] leading-[1.05] sm:text-6xl lg:text-7xl"
           >
-            {name ? `Dr. ${name},` : "You're Invited"}
+            {name ? `${name},` : "You're Invited"}
           </motion.h1>
 
           {chiefGuest && (
