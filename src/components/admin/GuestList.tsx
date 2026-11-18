@@ -14,7 +14,7 @@ import {
   Trash2,
 } from "lucide-react";
 import type { Doctor, Settings } from "@/lib/types";
-import { displayName } from "@/lib/slug";
+import { cleanName, displayName } from "@/lib/slug";
 import { GROUPS, type GroupId, groupOf } from "@/lib/groups";
 import { templateFor } from "@/lib/whatsapp";
 import { card, ghostBtn, iconBtn, useToast } from "./ui";
@@ -23,6 +23,7 @@ import WhatsAppIcon from "./WhatsAppIcon";
 
 type Filter = "all" | "attending" | "declined" | "awaiting" | "unopened" | "general";
 type SentFilter = "all" | "sent" | "unsent";
+type Sort = "az" | "newest";
 
 const FILTERS: [Filter, string][] = [
   ["all", "All"],
@@ -106,11 +107,12 @@ export default function GuestList({
   const [filter, setFilter] = useState<Filter>("all");
   const [group, setGroup] = useState<"all" | GroupId>("all");
   const [sent, setSent] = useState<SentFilter>("all");
+  const [sort, setSort] = useState<Sort>("az");
   const [page, setPage] = useState(1);
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return doctors.filter((d) => {
+    const matching = doctors.filter((d) => {
       if (q && !d.name.toLowerCase().includes(q) && !d.slug.includes(q)) return false;
       // General-link guests replied on their own; they belong to no contact list and need no sending.
       if (group !== "all" && (d.viaGeneral || groupOf(d) !== group)) return false;
@@ -123,7 +125,12 @@ export default function GuestList({
       if (filter === "general") return d.viaGeneral;
       return true;
     });
-  }, [doctors, query, filter, group, sent]);
+    // A–Z goes by the name itself, so "Dr." / "Mr." don't bunch everyone under D and M.
+    const byName = new Intl.Collator("en", { sensitivity: "base", numeric: true });
+    return sort === "az"
+      ? matching.sort((a, b) => byName.compare(cleanName(a.name), cleanName(b.name)))
+      : matching.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }, [doctors, query, filter, group, sent, sort]);
 
   const pageCount = Math.max(1, Math.ceil(shown.length / PAGE_SIZE));
   const current = Math.min(page, pageCount);
@@ -221,6 +228,15 @@ export default function GuestList({
               ["sent", "Sent"],
             ]}
             onChange={reset(setSent)}
+          />
+          <Chips
+            label="Sort"
+            value={sort}
+            options={[
+              ["az", "A–Z"],
+              ["newest", "Newest"],
+            ]}
+            onChange={reset(setSort)}
           />
         </div>
       </div>
