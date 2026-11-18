@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { handler, jsonError } from "@/lib/api";
-import { isGroupId } from "@/lib/groups";
+import { normalizeGroup } from "@/lib/groups";
 import { TITLES, parseGuest } from "@/lib/slug";
 
 type Ctx = { params: Promise<{ slug: string }> };
@@ -54,7 +54,11 @@ export const PATCH = handler(
     if (body.resetRsvp) delete doctor.rsvp;
     if (typeof body.chiefGuest === "boolean") doctor.chiefGuest = body.chiefGuest || undefined;
     if (typeof body.sent === "boolean") doctor.sentAt = body.sent ? new Date().toISOString() : undefined;
-    if (isGroupId(body.group)) doctor.group = body.group === "ravinder" ? "ravinder" : undefined;
+    if (body.group !== undefined) {
+      const group = normalizeGroup(body.group);
+      if (group === null) return jsonError("Please enter a category name (max 40 characters).", 400);
+      doctor.group = group;
+    }
     if (typeof body.phone === "string") doctor.phone = body.phone.replace(/[^\d+]/g, "") || undefined;
     await db.putDoctor(doctor);
     return NextResponse.json({ doctor });

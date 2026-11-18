@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import type { Doctor, Settings } from "@/lib/types";
 import { TITLES, cleanName, displayName } from "@/lib/slug";
-import { GROUPS, type GroupId, groupOf } from "@/lib/groups";
+import { allGroups, groupLabel, groupOf, groupShort } from "@/lib/groups";
 import { templateFor } from "@/lib/whatsapp";
 import { card, ghostBtn, iconBtn, input, primaryBtn, useToast } from "./ui";
 import { copyText, inviteLink, whatsappMessage, whatsappUrl } from "./share";
@@ -36,6 +36,8 @@ const FILTERS: [Filter, string][] = [
 ];
 
 const PAGE_SIZE = 25;
+/** Row list-picker value that asks for a new category name. */
+const OTHER = "__other__";
 
 const when = new Intl.DateTimeFormat("en-IN", {
   day: "numeric",
@@ -180,7 +182,8 @@ export default function GuestList({
   const toast = useToast();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
-  const [group, setGroup] = useState<"all" | GroupId>("all");
+  const [group, setGroup] = useState("all");
+  const groups = useMemo(() => allGroups(doctors), [doctors]);
   const [sent, setSent] = useState<SentFilter>("all");
   const [sort, setSort] = useState<Sort>("az");
   const [page, setPage] = useState(1);
@@ -296,7 +299,7 @@ export default function GuestList({
           <Chips
             label="List"
             value={group}
-            options={[["all", "All"], ...GROUPS.map((g) => [g.id, g.short] as [GroupId, string])]}
+            options={[["all", "All"], ...groups.map((g) => [g.id, g.short] as [string, string])]}
             onChange={reset(setGroup)}
           />
           <Chips
@@ -354,18 +357,24 @@ export default function GuestList({
                       <span className="min-w-0 truncate">{link.replace(/^https?:\/\//, "")}</span>
                       <select
                         value={g}
-                        onChange={(e) =>
-                          patch(d, { group: e.target.value }, `Moved to ${GROUPS.find((x) => x.id === e.target.value)?.label}`)
-                        }
+                        onChange={(e) => {
+                          let next = e.target.value;
+                          if (next === OTHER) {
+                            next = window.prompt("Category name (e.g. Media):")?.trim() ?? "";
+                            if (!next) return;
+                          }
+                          patch(d, { group: next }, `Moved to ${groupLabel(next)}`);
+                        }}
                         aria-label="Contact list"
                         title="Contact list"
                         className="shrink-0 cursor-pointer rounded-full border border-cocoa/10 bg-cocoa/[0.04] px-2 py-0.5 font-sans text-[11px] font-bold text-cocoa/70 focus:outline-none"
                       >
-                        {GROUPS.map((x) => (
+                        {groups.map((x) => (
                           <option key={x.id} value={x.id}>
                             {x.short}
                           </option>
                         ))}
+                        <option value={OTHER}>Other…</option>
                       </select>
                     </p>
                   )}
@@ -452,7 +461,7 @@ export default function GuestList({
                       {d.phone ? (
                         <a
                           className={iconBtn}
-                          title={`Send on WhatsApp (${GROUPS.find((x) => x.id === g)?.short}'s message)`}
+                          title={`Send on WhatsApp (${g === "ravinder" ? groupShort(g) : "Dr. Anand"}'s message)`}
                           target="_blank"
                           rel="noopener noreferrer"
                           href={whatsappUrl(d.phone, whatsappMessage(templateFor(settings, g), displayName(d), link))}

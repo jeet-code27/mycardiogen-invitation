@@ -5,7 +5,7 @@ import { Film, LoaderCircle, MessageCircle } from "lucide-react";
 import type { Settings } from "@/lib/types";
 import { parseVideo } from "@/lib/video";
 import { DEFAULT_WHATSAPP_MESSAGE } from "@/lib/whatsapp";
-import { GROUPS, type GroupId } from "@/lib/groups";
+import { MESSAGE_GROUPS } from "@/lib/groups";
 import { card, input, primaryBtn, useToast } from "./ui";
 
 export default function SettingsCard({
@@ -21,7 +21,7 @@ export default function SettingsCard({
   // Shows the default text when nothing custom is saved, so it can be edited in place.
   const [message, setMessage] = useState(initial.whatsappMessage || DEFAULT_WHATSAPP_MESSAGE);
   const [messageRavinder, setMessageRavinder] = useState(initial.whatsappMessageRavinder);
-  const [messageFor, setMessageFor] = useState<GroupId>("anand");
+  const [messageFor, setMessageFor] = useState<string>("anand");
   const [saved, setSaved] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -104,7 +104,7 @@ export default function SettingsCard({
           <MessageCircle className="size-4 text-[#25D366]" /> WhatsApp message
         </span>
         <span className="mb-2 flex rounded-full bg-cocoa/5 p-1 text-xs font-bold">
-          {GROUPS.map((g) => (
+          {MESSAGE_GROUPS.map((g) => (
             <button
               key={g.id}
               type="button"
@@ -132,7 +132,7 @@ export default function SettingsCard({
             value={messageRavinder}
             onChange={(e) => setMessageRavinder(e.target.value)}
             maxLength={3000}
-            placeholder={"Write Dr. Ravinder's message here.\nUntil then, his contacts get Dr. Anand's message.\n\nPlease open your invitation and RSVP here:\n{link}"}
+            placeholder={"Write Dr. Ravinder's message here.\nUntil then, his contacts get Dr. Anand's message.\nAll other lists (e.g. Insta influencer) use Dr. Anand's message.\n\nPlease open your invitation and RSVP here:\n{link}"}
             aria-label="WhatsApp message for Dr. Ravinder's contacts"
           />
         )}

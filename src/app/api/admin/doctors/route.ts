@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { handler, jsonError } from "@/lib/api";
 import { TITLES, parseGuest, slugify } from "@/lib/slug";
-import { isGroupId } from "@/lib/groups";
+import { normalizeGroup } from "@/lib/groups";
 import type { Doctor } from "@/lib/types";
 
 const byNewest = (a: Doctor, b: Doctor) => b.createdAt.localeCompare(a.createdAt);
@@ -30,7 +30,8 @@ export const POST = handler(
           ...parseGuest(String(e.name ?? ""), fallback),
           phone: String(e.phone ?? "").trim(),
           chiefGuest: e.chiefGuest === true,
-          group: isGroupId(e.group) ? e.group : "anand",
+          // An unusable list falls back to Dr. Anand's (stored as undefined).
+          group: normalizeGroup(e.group) ?? undefined,
         };
       })
       .filter((e) => e.name.length > 0);
@@ -57,7 +58,7 @@ export const POST = handler(
         title: entry.title === "Dr." ? undefined : entry.title,
         phone: entry.phone.replace(/[^\d+]/g, "") || undefined,
         chiefGuest: entry.chiefGuest || undefined,
-        group: entry.group === "ravinder" ? "ravinder" : undefined,
+        group: entry.group,
         // Offset by index so bulk-added rows keep their typed order when sorted by date.
         createdAt: new Date(now + i).toISOString(),
         openCount: 0,

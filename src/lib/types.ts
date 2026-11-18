@@ -22,8 +22,8 @@ export interface Doctor {
   rsvp?: Rsvp;
   /** Invited as the event's Chief Guest; the invitation says so. */
   chiefGuest?: boolean;
-  /** Whose contact list this guest is from (see lib/groups). Missing means Dr. Anand's. */
-  group?: "ravinder";
+  /** Contact list / category (see lib/groups): "ravinder", "influencer" or a typed name. Missing means Dr. Anand's. */
+  group?: string;
   /** When the admin ticked "sent on WhatsApp". */
   sentAt?: string;
   /**

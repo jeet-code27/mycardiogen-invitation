@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Copy, Crown, ExternalLink, ListPlus, LoaderCircle, UserPlus } from "lucide-react";
 import type { Doctor, Settings } from "@/lib/types";
-import { GROUPS, type GroupId, groupOf } from "@/lib/groups";
+import { type Group, groupOf } from "@/lib/groups";
 import { templateFor } from "@/lib/whatsapp";
 import { TITLES, cleanName, displayName, parseGuest, slugify } from "@/lib/slug";
 import { card, ghostBtn, input, primaryBtn, useToast } from "./ui";
@@ -45,10 +45,13 @@ function parseLine(line: string) {
 export default function AddDoctors({
   origin,
   settings,
+  groups,
   onCreated,
 }: {
   origin: string;
   settings: Pick<Settings, "whatsappMessage" | "whatsappMessageRavinder">;
+  /** Lists to offer: the built-in ones plus custom categories already in use. */
+  groups: Group[];
   onCreated: (doctors: Doctor[]) => void;
 }) {
   const toast = useToast();
@@ -58,7 +61,11 @@ export default function AddDoctors({
   const [chiefGuest, setChiefGuest] = useState(false);
   // Title used when a name is typed without one ("Mr. Bipin Gupta" keeps its own).
   const [title, setTitle] = useState<string>("Dr.");
-  const [group, setGroup] = useState<GroupId>("anand");
+  const [group, setGroup] = useState("anand");
+  // "Other": the admin types a new category name.
+  const [otherMode, setOtherMode] = useState(false);
+  const [customGroup, setCustomGroup] = useState("");
+  const chosenGroup = otherMode ? customGroup.trim() : group;
   const [bulk, setBulk] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -67,7 +74,7 @@ export default function AddDoctors({
   const bulkEntries = bulk.split(/\r?\n/).map(parseLine).filter((e) => cleanName(e.name));
 
   async function create(
-    entries: { name: string; phone?: string; chiefGuest?: boolean; defaultTitle?: string; group?: GroupId }[],
+    entries: { name: string; phone?: string; chiefGuest?: boolean; defaultTitle?: string; group?: string }[],
   ) {
     setBusy(true);
     setError("");
@@ -125,23 +132,48 @@ export default function AddDoctors({
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center gap-3">
-        <span className="text-sm font-bold text-cocoa/70">Add to</span>
-        <div className="flex rounded-full bg-cocoa/5 p-1 text-sm font-bold">
-          {GROUPS.map((g) => (
+      <div className="mt-6 flex flex-wrap items-center gap-2">
+        <span className="mr-1 text-sm font-bold text-cocoa/70">Add to</span>
+        {groups.map((g) => {
+          const on = !otherMode && group === g.id;
+          return (
             <button
               key={g.id}
               type="button"
-              onClick={() => setGroup(g.id)}
-              aria-pressed={group === g.id}
-              className={`cursor-pointer rounded-full px-4 py-1.5 transition-colors ${
-                group === g.id ? "bg-white text-cocoa shadow-sm" : "text-cocoa/55 hover:text-cocoa"
+              onClick={() => {
+                setGroup(g.id);
+                setOtherMode(false);
+              }}
+              aria-pressed={on}
+              className={`cursor-pointer rounded-full px-4 py-1.5 text-sm font-bold transition-colors ${
+                on ? "bg-cocoa text-cream" : "bg-cocoa/5 text-cocoa/60 hover:text-cocoa"
               }`}
             >
               {g.label}
             </button>
-          ))}
-        </div>
+          );
+        })}
+        <button
+          type="button"
+          onClick={() => setOtherMode(true)}
+          aria-pressed={otherMode}
+          className={`cursor-pointer rounded-full px-4 py-1.5 text-sm font-bold transition-colors ${
+            otherMode ? "bg-cocoa text-cream" : "bg-cocoa/5 text-cocoa/60 hover:text-cocoa"
+          }`}
+        >
+          Other…
+        </button>
+        {otherMode && (
+          <input
+            className={`${input} w-56! py-1.5! text-sm`}
+            value={customGroup}
+            onChange={(e) => setCustomGroup(e.target.value)}
+            placeholder="Type a category, e.g. Media"
+            maxLength={40}
+            aria-label="Other category name"
+            autoFocus
+          />
+        )}
       </div>
 
       {mode === "single" ? (
@@ -149,7 +181,7 @@ export default function AddDoctors({
           className="mt-6"
           onSubmit={(e) => {
             e.preventDefault();
-            create([{ name, phone, chiefGuest, defaultTitle: title, group }]);
+            create([{ name, phone, chiefGuest, defaultTitle: title, group: chosenGroup }]);
           }}
         >
           <div className="grid gap-3 sm:grid-cols-[110px_1fr_200px]">
@@ -193,7 +225,7 @@ export default function AddDoctors({
           <p className="mt-3 truncate font-mono text-xs text-cocoa/50">
             {origin.replace(/^https?:\/\//, "")}/<span className="text-teal">{previewSlug}</span>
           </p>
-          <button type="submit" disabled={busy || !cleanName(name)} className={`${primaryBtn} mt-5`}>
+          <button type="submit" disabled={busy || !cleanName(name) || (otherMode && !chosenGroup)} className={`${primaryBtn} mt-5`}>
             {busy ? <LoaderCircle className="size-4 animate-spin" /> : <UserPlus className="size-4" />}
             Create invitation
           </button>
@@ -203,7 +235,7 @@ export default function AddDoctors({
           className="mt-6"
           onSubmit={(e) => {
             e.preventDefault();
-            create(bulkEntries.map((e) => ({ ...e, defaultTitle: title, group })));
+            create(bulkEntries.map((e) => ({ ...e, defaultTitle: title, group: chosenGroup })));
           }}
         >
           <label className="mb-3 flex flex-wrap items-center gap-3 text-sm font-bold text-cocoa/70">
@@ -217,7 +249,7 @@ export default function AddDoctors({
             onChange={(e) => setBulk(e.target.value)}
             aria-label="Doctor names, one per line"
           />
-          <button type="submit" disabled={busy || bulkEntries.length === 0} className={`${primaryBtn} mt-5`}>
+          <button type="submit" disabled={busy || bulkEntries.length === 0 || (otherMode && !chosenGroup)} className={`${primaryBtn} mt-5`}>
             {busy ? <LoaderCircle className="size-4 animate-spin" /> : <ListPlus className="size-4" />}
             Create {bulkEntries.length || ""} invitation{bulkEntries.length === 1 ? "" : "s"}
           </button>

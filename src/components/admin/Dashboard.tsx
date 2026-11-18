@@ -9,6 +9,7 @@ import Logo from "@/components/Logo";
 import AddDoctors from "./AddDoctors";
 import SettingsCard from "./SettingsCard";
 import GuestList from "./GuestList";
+import { allGroups } from "@/lib/groups";
 import GeneralLink from "./GeneralLink";
 import { ToastProvider, card, ghostBtn } from "./ui";
 
@@ -125,6 +126,7 @@ export default function Dashboard({
             <AddDoctors
               origin={origin}
               settings={settings}
+              groups={allGroups(doctors)}
               onCreated={(created) => setDoctors((d) => [...created.reverse(), ...d])}
             />
             <SettingsCard initial={initialSettings} onSaved={setSettings} />

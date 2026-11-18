@@ -24,7 +24,7 @@ export function fillMessage(template: string, { name, link }: { name: string; li
 /** The template for a contact list: Dr. Ravinder's own message if written, else the main one. */
 export function templateFor(
   settings: { whatsappMessage: string; whatsappMessageRavinder: string },
-  group: "anand" | "ravinder",
+  group: string,
 ): string {
   return (group === "ravinder" && settings.whatsappMessageRavinder.trim()) || settings.whatsappMessage;
 }
