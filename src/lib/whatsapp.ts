@@ -20,3 +20,11 @@ export function fillMessage(template: string, { name, link }: { name: string; li
   // The link must always go out, even if someone deletes {link} from the template.
   return text.includes("{link}") ? text.replaceAll("{link}", link) : `${text}\n\n${link}`;
 }
+
+/** The template for a contact list: Dr. Ravinder's own message if written, else the main one. */
+export function templateFor(
+  settings: { whatsappMessage: string; whatsappMessageRavinder: string },
+  group: "anand" | "ravinder",
+): string {
+  return (group === "ravinder" && settings.whatsappMessageRavinder.trim()) || settings.whatsappMessage;
+}

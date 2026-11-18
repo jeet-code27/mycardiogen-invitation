@@ -12,7 +12,12 @@ import { DEFAULT_VIDEO_SRC } from "./video";
 const DOCTORS_KEY = "cg:doctors";
 const SETTINGS_KEY = "cg:settings";
 
-export const DEFAULT_SETTINGS: Settings = { videoUrl: DEFAULT_VIDEO_SRC, eventTime: "", whatsappMessage: "" };
+export const DEFAULT_SETTINGS: Settings = {
+  videoUrl: DEFAULT_VIDEO_SRC,
+  eventTime: "",
+  whatsappMessage: "",
+  whatsappMessageRavinder: "",
+};
 
 export class StorageNotConfiguredError extends Error {
   constructor() {

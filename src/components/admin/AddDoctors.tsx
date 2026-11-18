@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Copy, Crown, ExternalLink, ListPlus, LoaderCircle, UserPlus } from "lucide-react";
-import type { Doctor } from "@/lib/types";
+import type { Doctor, Settings } from "@/lib/types";
+import { GROUPS, type GroupId, groupOf } from "@/lib/groups";
+import { templateFor } from "@/lib/whatsapp";
 import { TITLES, cleanName, displayName, parseGuest, slugify } from "@/lib/slug";
 import { card, ghostBtn, input, primaryBtn, useToast } from "./ui";
 import { copyText, inviteLink, whatsappMessage, whatsappUrl } from "./share";
@@ -42,11 +44,11 @@ function parseLine(line: string) {
 
 export default function AddDoctors({
   origin,
-  messageTemplate,
+  settings,
   onCreated,
 }: {
   origin: string;
-  messageTemplate: string;
+  settings: Pick<Settings, "whatsappMessage" | "whatsappMessageRavinder">;
   onCreated: (doctors: Doctor[]) => void;
 }) {
   const toast = useToast();
@@ -56,6 +58,7 @@ export default function AddDoctors({
   const [chiefGuest, setChiefGuest] = useState(false);
   // Title used when a name is typed without one ("Mr. Bipin Gupta" keeps its own).
   const [title, setTitle] = useState<string>("Dr.");
+  const [group, setGroup] = useState<GroupId>("anand");
   const [bulk, setBulk] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -63,7 +66,9 @@ export default function AddDoctors({
 
   const bulkEntries = bulk.split(/\r?\n/).map(parseLine).filter((e) => cleanName(e.name));
 
-  async function create(entries: { name: string; phone?: string; chiefGuest?: boolean; defaultTitle?: string }[]) {
+  async function create(
+    entries: { name: string; phone?: string; chiefGuest?: boolean; defaultTitle?: string; group?: GroupId }[],
+  ) {
     setBusy(true);
     setError("");
     try {
@@ -120,12 +125,31 @@ export default function AddDoctors({
         </div>
       </div>
 
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <span className="text-sm font-bold text-cocoa/70">Add to</span>
+        <div className="flex rounded-full bg-cocoa/5 p-1 text-sm font-bold">
+          {GROUPS.map((g) => (
+            <button
+              key={g.id}
+              type="button"
+              onClick={() => setGroup(g.id)}
+              aria-pressed={group === g.id}
+              className={`cursor-pointer rounded-full px-4 py-1.5 transition-colors ${
+                group === g.id ? "bg-white text-cocoa shadow-sm" : "text-cocoa/55 hover:text-cocoa"
+              }`}
+            >
+              {g.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {mode === "single" ? (
         <form
           className="mt-6"
           onSubmit={(e) => {
             e.preventDefault();
-            create([{ name, phone, chiefGuest, defaultTitle: title }]);
+            create([{ name, phone, chiefGuest, defaultTitle: title, group }]);
           }}
         >
           <div className="grid gap-3 sm:grid-cols-[110px_1fr_200px]">
@@ -179,7 +203,7 @@ export default function AddDoctors({
           className="mt-6"
           onSubmit={(e) => {
             e.preventDefault();
-            create(bulkEntries.map((e) => ({ ...e, defaultTitle: title })));
+            create(bulkEntries.map((e) => ({ ...e, defaultTitle: title, group })));
           }}
         >
           <label className="mb-3 flex flex-wrap items-center gap-3 text-sm font-bold text-cocoa/70">
@@ -232,7 +256,7 @@ export default function AddDoctors({
                   rel="noopener noreferrer"
                   href={whatsappUrl(
                     last[0].phone,
-                    whatsappMessage(messageTemplate, displayName(last[0]), inviteLink(origin, last[0].slug)),
+                    whatsappMessage(templateFor(settings, groupOf(last[0])), displayName(last[0]), inviteLink(origin, last[0].slug)),
                   )}
                 >
                   <WhatsAppIcon className="size-4 text-[#25D366]" /> WhatsApp

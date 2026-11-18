@@ -124,7 +124,7 @@ export default function Dashboard({
           <div className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
             <AddDoctors
               origin={origin}
-              messageTemplate={settings.whatsappMessage}
+              settings={settings}
               onCreated={(created) => setDoctors((d) => [...created.reverse(), ...d])}
             />
             <SettingsCard initial={initialSettings} onSaved={setSettings} />
@@ -134,7 +134,7 @@ export default function Dashboard({
             <GuestList
               doctors={doctors}
               origin={origin}
-              messageTemplate={settings.whatsappMessage}
+              settings={settings}
               onChange={(doc) => setDoctors((ds) => ds.map((d) => (d.slug === doc.slug ? doc : d)))}
               onRemove={(slug) => setDoctors((ds) => ds.filter((d) => d.slug !== slug))}
             />

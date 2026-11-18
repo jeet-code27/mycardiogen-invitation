@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { handler, jsonError } from "@/lib/api";
 import { TITLES, parseGuest, slugify } from "@/lib/slug";
+import { isGroupId } from "@/lib/groups";
 import type { Doctor } from "@/lib/types";
 
 const byNewest = (a: Doctor, b: Doctor) => b.createdAt.localeCompare(a.createdAt);
@@ -18,7 +19,7 @@ export const GET = handler(
 export const POST = handler(
   async (req: Request) => {
     const body = (await req.json().catch(() => ({}))) as {
-      entries?: { name?: string; phone?: string; chiefGuest?: boolean; defaultTitle?: string }[];
+      entries?: { name?: string; phone?: string; chiefGuest?: boolean; defaultTitle?: string; group?: string }[];
     };
     const entries = (body.entries ?? [])
       .map((e) => {
@@ -29,6 +30,7 @@ export const POST = handler(
           ...parseGuest(String(e.name ?? ""), fallback),
           phone: String(e.phone ?? "").trim(),
           chiefGuest: e.chiefGuest === true,
+          group: isGroupId(e.group) ? e.group : "anand",
         };
       })
       .filter((e) => e.name.length > 0);
@@ -55,6 +57,7 @@ export const POST = handler(
         title: entry.title === "Dr." ? undefined : entry.title,
         phone: entry.phone.replace(/[^\d+]/g, "") || undefined,
         chiefGuest: entry.chiefGuest || undefined,
+        group: entry.group === "ravinder" ? "ravinder" : undefined,
         // Offset by index so bulk-added rows keep their typed order when sorted by date.
         createdAt: new Date(now + i).toISOString(),
         openCount: 0,

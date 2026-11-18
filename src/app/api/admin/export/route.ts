@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { handler } from "@/lib/api";
 import { displayName } from "@/lib/slug";
+import { groupLabel, groupOf } from "@/lib/groups";
 
 function csvCell(value: unknown): string {
   const s = value === undefined || value === null ? "" : String(value);
@@ -16,6 +17,8 @@ export const GET = handler(
     const header = [
       "Name",
       "Chief guest",
+      "Contact list",
+      "Sent on WhatsApp",
       "Source",
       "Invitation link",
       "Phone",
@@ -30,6 +33,8 @@ export const GET = handler(
     const rows = doctors.map((d) => [
       displayName(d),
       d.chiefGuest ? "Yes" : "",
+      d.viaGeneral ? "" : groupLabel(groupOf(d)),
+      d.sentAt ?? "",
       d.viaGeneral ? "General link" : "Personal link",
       d.viaGeneral ? `${origin}/` : `${origin}/${d.slug}`,
       d.phone,

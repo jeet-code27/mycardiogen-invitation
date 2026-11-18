@@ -5,6 +5,7 @@ import { Film, LoaderCircle, MessageCircle } from "lucide-react";
 import type { Settings } from "@/lib/types";
 import { parseVideo } from "@/lib/video";
 import { DEFAULT_WHATSAPP_MESSAGE } from "@/lib/whatsapp";
+import { GROUPS, type GroupId } from "@/lib/groups";
 import { card, input, primaryBtn, useToast } from "./ui";
 
 export default function SettingsCard({
@@ -19,6 +20,8 @@ export default function SettingsCard({
   const [eventTime, setEventTime] = useState(initial.eventTime);
   // Shows the default text when nothing custom is saved, so it can be edited in place.
   const [message, setMessage] = useState(initial.whatsappMessage || DEFAULT_WHATSAPP_MESSAGE);
+  const [messageRavinder, setMessageRavinder] = useState(initial.whatsappMessageRavinder);
+  const [messageFor, setMessageFor] = useState<GroupId>("anand");
   const [saved, setSaved] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -26,7 +29,8 @@ export default function SettingsCard({
   const dirty =
     videoUrl !== saved.videoUrl ||
     eventTime !== saved.eventTime ||
-    message !== (saved.whatsappMessage || DEFAULT_WHATSAPP_MESSAGE);
+    message !== (saved.whatsappMessage || DEFAULT_WHATSAPP_MESSAGE) ||
+    messageRavinder !== saved.whatsappMessageRavinder;
   const parsed = parseVideo(videoUrl);
 
   async function save(e: React.FormEvent) {
@@ -37,7 +41,12 @@ export default function SettingsCard({
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ videoUrl, eventTime, whatsappMessage: message }),
+        body: JSON.stringify({
+          videoUrl,
+          eventTime,
+          whatsappMessage: message,
+          whatsappMessageRavinder: messageRavinder,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Could not save.");
@@ -94,17 +103,44 @@ export default function SettingsCard({
         <span className="mb-2 flex items-center gap-2 text-sm font-bold">
           <MessageCircle className="size-4 text-[#25D366]" /> WhatsApp message
         </span>
-        <textarea
-          className={`${input} min-h-56 text-sm leading-relaxed`}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          maxLength={3000}
-        />
+        <span className="mb-2 flex rounded-full bg-cocoa/5 p-1 text-xs font-bold">
+          {GROUPS.map((g) => (
+            <button
+              key={g.id}
+              type="button"
+              onClick={() => setMessageFor(g.id)}
+              aria-pressed={messageFor === g.id}
+              className={`flex-1 cursor-pointer rounded-full px-3 py-1.5 transition-colors ${
+                messageFor === g.id ? "bg-white text-cocoa shadow-sm" : "text-cocoa/55 hover:text-cocoa"
+              }`}
+            >
+              {g.label}
+            </button>
+          ))}
+        </span>
+        {messageFor === "anand" ? (
+          <textarea
+            className={`${input} min-h-56 text-sm leading-relaxed`}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            maxLength={3000}
+            aria-label="WhatsApp message for Dr. Anand's contacts"
+          />
+        ) : (
+          <textarea
+            className={`${input} min-h-56 text-sm leading-relaxed`}
+            value={messageRavinder}
+            onChange={(e) => setMessageRavinder(e.target.value)}
+            maxLength={3000}
+            placeholder={"Write Dr. Ravinder's message here.\nUntil then, his contacts get Dr. Anand's message.\n\nPlease open your invitation and RSVP here:\n{link}"}
+            aria-label="WhatsApp message for Dr. Ravinder's contacts"
+          />
+        )}
         <span className="mt-2 block text-xs text-cocoa/50">
           Sent with every WhatsApp button. <code className="font-bold">{"{link}"}</code> becomes the guest&apos;s
           link and <code className="font-bold">{"{name}"}</code> their name (e.g. add a first line &ldquo;Dear{" "}
           {"{name}"},&rdquo;).{" "}
-          {message !== DEFAULT_WHATSAPP_MESSAGE && (
+          {messageFor === "anand" && message !== DEFAULT_WHATSAPP_MESSAGE && (
             <button
               type="button"
               onClick={() => setMessage(DEFAULT_WHATSAPP_MESSAGE)}
