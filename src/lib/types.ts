@@ -34,6 +34,8 @@ export interface Settings {
   videoUrl: string;
   /** "HH:MM" (24h, IST). Empty hides the time and treats the event as all-day. */
   eventTime: string;
+  /** WhatsApp message template with {name} and {link}; empty means the default message. */
+  whatsappMessage: string;
 }
 
 /** The subset of a doctor that is safe to send to the public invitation page. */

@@ -25,6 +25,7 @@ export default function Dashboard({
 }) {
   const router = useRouter();
   const [doctors, setDoctors] = useState(initialDoctors);
+  const [settings, setSettings] = useState(initialSettings);
   const origin = useSyncExternalStore(
     noopSubscribe,
     () => window.location.origin,
@@ -113,18 +114,27 @@ export default function Dashboard({
           </div>
 
           <div className="mt-6">
-            <GeneralLink origin={origin} responses={doctors.filter((d) => d.viaGeneral).length} />
+            <GeneralLink
+              origin={origin}
+              responses={doctors.filter((d) => d.viaGeneral).length}
+              messageTemplate={settings.whatsappMessage}
+            />
           </div>
 
           <div className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-            <AddDoctors origin={origin} onCreated={(created) => setDoctors((d) => [...created.reverse(), ...d])} />
-            <SettingsCard initial={initialSettings} />
+            <AddDoctors
+              origin={origin}
+              messageTemplate={settings.whatsappMessage}
+              onCreated={(created) => setDoctors((d) => [...created.reverse(), ...d])}
+            />
+            <SettingsCard initial={initialSettings} onSaved={setSettings} />
           </div>
 
           <div className="mt-6">
             <GuestList
               doctors={doctors}
               origin={origin}
+              messageTemplate={settings.whatsappMessage}
               onChange={(doc) => setDoctors((ds) => ds.map((d) => (d.slug === doc.slug ? doc : d)))}
               onRemove={(slug) => setDoctors((ds) => ds.filter((d) => d.slug !== slug))}
             />

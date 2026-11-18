@@ -2,11 +2,19 @@
 
 import { Copy, ExternalLink, Globe } from "lucide-react";
 import { card, ghostBtn, useToast } from "./ui";
-import { copyText, generalWhatsappMessage, whatsappUrl } from "./share";
+import { copyText, whatsappMessage, whatsappUrl } from "./share";
 import WhatsAppIcon from "./WhatsAppIcon";
 
 /** The shareable home-page invitation that works for anyone (they type their name when they RSVP). */
-export default function GeneralLink({ origin, responses }: { origin: string; responses: number }) {
+export default function GeneralLink({
+  origin,
+  responses,
+  messageTemplate,
+}: {
+  origin: string;
+  responses: number;
+  messageTemplate: string;
+}) {
   const toast = useToast();
   const link = `${origin}/`;
 
@@ -35,7 +43,7 @@ export default function GeneralLink({ origin, responses }: { origin: string; res
         >
           <Copy className="size-4" /> Copy
         </button>
-        <a className={ghostBtn} target="_blank" rel="noopener noreferrer" href={whatsappUrl("", generalWhatsappMessage(link))}>
+        <a className={ghostBtn} target="_blank" rel="noopener noreferrer" href={whatsappUrl("", whatsappMessage(messageTemplate, "", link))}>
           <WhatsAppIcon className="size-4 text-[#25D366]" /> WhatsApp
         </a>
         <a className={ghostBtn} target="_blank" rel="noopener noreferrer" href="/">

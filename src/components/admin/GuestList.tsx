@@ -44,11 +44,13 @@ function StatusBadge({ d }: { d: Doctor }) {
 export default function GuestList({
   doctors,
   origin,
+  messageTemplate,
   onChange,
   onRemove,
 }: {
   doctors: Doctor[];
   origin: string;
+  messageTemplate: string;
   onChange: (d: Doctor) => void;
   onRemove: (slug: string) => void;
 }) {
@@ -221,7 +223,7 @@ export default function GuestList({
                         title="Send on WhatsApp"
                         target="_blank"
                         rel="noopener noreferrer"
-                        href={whatsappUrl(d.phone, whatsappMessage(displayName(d), link, d.chiefGuest))}
+                        href={whatsappUrl(d.phone, whatsappMessage(messageTemplate, displayName(d), link))}
                       >
                         <WhatsAppIcon className="size-4 text-[#25D366]" />
                       </a>

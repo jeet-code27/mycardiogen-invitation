@@ -42,9 +42,11 @@ function parseLine(line: string) {
 
 export default function AddDoctors({
   origin,
+  messageTemplate,
   onCreated,
 }: {
   origin: string;
+  messageTemplate: string;
   onCreated: (doctors: Doctor[]) => void;
 }) {
   const toast = useToast();
@@ -230,7 +232,7 @@ export default function AddDoctors({
                   rel="noopener noreferrer"
                   href={whatsappUrl(
                     last[0].phone,
-                    whatsappMessage(displayName(last[0]), inviteLink(origin, last[0].slug), last[0].chiefGuest),
+                    whatsappMessage(messageTemplate, displayName(last[0]), inviteLink(origin, last[0].slug)),
                   )}
                 >
                   <WhatsAppIcon className="size-4 text-[#25D366]" /> WhatsApp

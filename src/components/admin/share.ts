@@ -1,50 +1,23 @@
-import { EVENT } from "@/lib/event";
+import { fillMessage } from "@/lib/whatsapp";
 
 export function inviteLink(origin: string, slug: string) {
   return `${origin}/${slug}`;
 }
 
-export function whatsappMessage(name: string, link: string, chiefGuest = false) {
-  return [
-    `Dear ${name},`,
-    "",
-    chiefGuest
-      ? "It is our privilege to invite you as our *Chief Guest* to the India launch of *MyCardioGen* — A Paradigm Shift in Preventive Heart Screening."
-      : "It is our privilege to invite you to the India launch of *MyCardioGen* — A Paradigm Shift in Preventive Heart Screening.",
-    "",
-    `📅 ${EVENT.dateLong}`,
-    `📍 ${EVENT.venueFull}`,
-    "",
-    "Your personal invitation:",
-    link,
-    "",
-    "Warm regards,",
-    "Dr. Anand Singla & Dr. Sonam Chouksey",
-  ].join("\n");
+/** The admin's message template filled in for one guest (or for the general link, without a name). */
+export function whatsappMessage(template: string, name: string, link: string) {
+  return fillMessage(template, { name, link });
 }
 
-export function generalWhatsappMessage(link: string) {
-  return [
-    "Greetings,",
-    "",
-    "It is our privilege to invite you to the India launch of *MyCardioGen* — A Paradigm Shift in Preventive Heart Screening.",
-    "",
-    `📅 ${EVENT.dateLong}`,
-    `📍 ${EVENT.venueFull}`,
-    "",
-    "View the invitation and RSVP:",
-    link,
-    "",
-    "Warm regards,",
-    "Dr. Anand Singla & Dr. Sonam Chouksey",
-  ].join("\n");
-}
-
-/** wa.me link; a 10-digit Indian mobile gets the +91 country code. */
+/**
+ * WhatsApp share link; a 10-digit Indian mobile gets the +91 country code. Uses
+ * api.whatsapp.com rather than wa.me, whose redirect turns emojis like 📅 into "�".
+ */
 export function whatsappUrl(phone: string | undefined, text: string) {
   let digits = (phone ?? "").replace(/\D/g, "");
   if (digits.length === 10) digits = `91${digits}`;
-  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+  const to = digits ? `phone=${digits}&` : "";
+  return `https://api.whatsapp.com/send?${to}text=${encodeURIComponent(text)}`;
 }
 
 export async function copyText(text: string): Promise<boolean> {
