@@ -76,7 +76,7 @@ function EditGuest({
 
   return (
     <form
-      className="rounded-2xl border border-teal/25 bg-teal/5 p-4 md:col-span-3"
+      className="rounded-2xl border border-teal/25 bg-teal/5 p-4 lg:col-span-3"
       onSubmit={async (e) => {
         e.preventDefault();
         setBusy(true);
@@ -333,7 +333,7 @@ export default function GuestList({
             return (
               <li
                 key={d.slug}
-                className="grid gap-3 rounded-2xl p-4 transition-colors hover:bg-cocoa/[0.03] md:grid-cols-[1fr_auto_auto] md:items-center md:gap-6"
+                className="grid gap-3 rounded-2xl p-4 transition-colors hover:bg-cocoa/[0.03] lg:grid-cols-[minmax(0,1fr)_150px_auto] lg:items-center lg:gap-6"
               >
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-2 font-serif text-lg">
@@ -350,8 +350,8 @@ export default function GuestList({
                     )}
                   </p>
                   {!d.viaGeneral && (
-                    <p className="flex flex-wrap items-center gap-x-2 font-mono text-xs text-cocoa/50">
-                      <span className="truncate">{link.replace(/^https?:\/\//, "")}</span>
+                    <p className="mt-0.5 flex min-w-0 items-center gap-2 font-mono text-xs text-cocoa/50">
+                      <span className="min-w-0 truncate">{link.replace(/^https?:\/\//, "")}</span>
                       <select
                         value={g}
                         onChange={(e) =>
@@ -359,7 +359,7 @@ export default function GuestList({
                         }
                         aria-label="Contact list"
                         title="Contact list"
-                        className="cursor-pointer rounded-full border border-cocoa/10 bg-cocoa/[0.04] px-2 py-0.5 font-sans text-[11px] font-bold text-cocoa/70 focus:outline-none"
+                        className="shrink-0 cursor-pointer rounded-full border border-cocoa/10 bg-cocoa/[0.04] px-2 py-0.5 font-sans text-[11px] font-bold text-cocoa/70 focus:outline-none"
                       >
                         {GROUPS.map((x) => (
                           <option key={x.id} value={x.id}>
@@ -369,16 +369,37 @@ export default function GuestList({
                       </select>
                     </p>
                   )}
-                  {(d.rsvp?.message || d.rsvp?.phone) && (
-                    <p className="mt-1.5 text-sm text-cocoa/70">
-                      {d.rsvp.phone && <span className="mr-2 font-bold">{d.rsvp.phone}</span>}
+                  {!d.viaGeneral && !d.phone && (
+                    <button
+                      type="button"
+                      onClick={() => setEditing(d.slug)}
+                      className="mt-1.5 cursor-pointer rounded-full bg-[#fff1d6] px-2.5 py-0.5 text-[11px] font-bold text-[#8a5300] transition-colors hover:bg-[#ffe2a8]"
+                    >
+                      No WhatsApp number · add
+                    </button>
+                  )}
+                  {d.rsvp && (
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-teal/[0.06] px-3 py-2 text-sm text-cocoa/75">
+                      <span className="text-[11px] font-bold tracking-wide text-teal uppercase">RSVP</span>
+                      {d.rsvp.status === "attending" ? (
+                        <span className="font-bold">
+                          {d.rsvp.guests > 1 ? `${d.rsvp.guests} people (with a guest)` : "1 person"}
+                        </span>
+                      ) : (
+                        <span className="font-bold">Can&apos;t attend</span>
+                      )}
+                      {d.rsvp.phone && (
+                        <span>
+                          Mobile: <span className="font-bold">{d.rsvp.phone}</span>
+                        </span>
+                      )}
                       {d.rsvp.message && <span className="italic">“{d.rsvp.message}”</span>}
-                    </p>
+                    </div>
                   )}
                 </div>
-                <div className="flex items-center gap-3 md:flex-col md:items-end md:gap-1">
+                <div className="flex items-center gap-3 lg:flex-col lg:items-end lg:gap-1">
                   <StatusBadge d={d} />
-                  <span className="text-xs text-cocoa/45">
+                  <span className="text-xs whitespace-nowrap text-cocoa/45">
                     {d.rsvp
                       ? `Replied ${when.format(new Date(d.rsvp.respondedAt))}`
                       : d.lastOpenedAt
@@ -386,15 +407,24 @@ export default function GuestList({
                         : `Added ${when.format(new Date(d.createdAt))}`}
                   </span>
                 </div>
-                <div className="flex flex-wrap items-center gap-0.5">
-                  {!d.viaGeneral && (
+                {/* Every action has a fixed slot (blank when it doesn't apply) so all rows line up. */}
+                <div className="flex items-center gap-0.5 lg:justify-end">
+                  {d.viaGeneral ? (
+                    <>
+                      <span aria-hidden className="mr-1 w-[92px]" />
+                      <span aria-hidden className="size-9" />
+                      <span aria-hidden className="size-9" />
+                      <span aria-hidden className="size-9" />
+                      <span aria-hidden className="size-9" />
+                    </>
+                  ) : (
                     <>
                       <button
                         type="button"
                         onClick={() => patch(d, { sent: !d.sentAt }, d.sentAt ? "Marked as not sent" : "Marked as sent")}
                         title={d.sentAt ? `Sent ${when.format(new Date(d.sentAt))} · click to undo` : "Tick once the invitation is sent"}
                         aria-pressed={Boolean(d.sentAt)}
-                        className={`mr-1 inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
+                        className={`mr-1 inline-flex w-[92px] cursor-pointer items-center justify-center gap-1.5 rounded-full border py-1.5 text-xs font-bold transition-colors ${
                           d.sentAt
                             ? "border-[#25D366] bg-[#25D366] text-white"
                             : "border-cocoa/15 bg-white text-cocoa/55 hover:border-[#25D366] hover:text-[#128C4B]"
@@ -432,11 +462,12 @@ export default function GuestList({
                       ) : (
                         <button
                           type="button"
+                          className={iconBtn}
+                          title="No WhatsApp number · click to add one"
+                          aria-label="No WhatsApp number, add one"
                           onClick={() => setEditing(d.slug)}
-                          title="Add a WhatsApp number"
-                          className="mx-1 cursor-pointer rounded-full bg-[#fff1d6] px-2.5 py-1 text-[11px] font-bold text-[#8a5300] transition-colors hover:bg-[#ffe2a8]"
                         >
-                          No WhatsApp number
+                          <WhatsAppIcon className="size-4 text-cocoa/25" />
                         </button>
                       )}
                       <a className={iconBtn} title="Open invitation" target="_blank" rel="noopener noreferrer" href={`/${d.slug}`}>
@@ -454,7 +485,7 @@ export default function GuestList({
                       </button>
                     </>
                   )}
-                  {d.rsvp && (
+                  {d.rsvp ? (
                     <button
                       type="button"
                       className={iconBtn}
@@ -467,6 +498,8 @@ export default function GuestList({
                     >
                       <RotateCcw className="size-4" />
                     </button>
+                  ) : (
+                    <span aria-hidden className="size-9" />
                   )}
                   <button
                     type="button"
