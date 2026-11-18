@@ -11,13 +11,14 @@ import {
   ExternalLink,
   RotateCcw,
   Search,
+  Pencil,
   Trash2,
 } from "lucide-react";
 import type { Doctor, Settings } from "@/lib/types";
-import { cleanName, displayName } from "@/lib/slug";
+import { TITLES, cleanName, displayName } from "@/lib/slug";
 import { GROUPS, type GroupId, groupOf } from "@/lib/groups";
 import { templateFor } from "@/lib/whatsapp";
-import { card, ghostBtn, iconBtn, useToast } from "./ui";
+import { card, ghostBtn, iconBtn, input, primaryBtn, useToast } from "./ui";
 import { copyText, inviteLink, whatsappMessage, whatsappUrl } from "./share";
 import WhatsAppIcon from "./WhatsAppIcon";
 
@@ -56,6 +57,80 @@ function StatusBadge({ d }: { d: Doctor }) {
   if (d.firstOpenedAt || d.viaGeneral)
     return <span className="rounded-full bg-[#ffe7cd] px-3 py-1 text-xs font-bold text-[#a3520c]">Opened</span>;
   return <span className="rounded-full bg-blush/60 px-3 py-1 text-xs font-bold text-blood">Not opened</span>;
+}
+
+/** Inline editor for a guest's title, name and WhatsApp number. The link never changes. */
+function EditGuest({
+  d,
+  onSave,
+  onCancel,
+}: {
+  d: Doctor;
+  onSave: (body: { name: string; title?: string; phone: string }) => Promise<void>;
+  onCancel: () => void;
+}) {
+  const [title, setTitle] = useState(d.title ?? "Dr.");
+  const [name, setName] = useState(d.name);
+  const [phone, setPhone] = useState(d.phone ?? "");
+  const [busy, setBusy] = useState(false);
+
+  return (
+    <form
+      className="rounded-2xl border border-teal/25 bg-teal/5 p-4 md:col-span-3"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setBusy(true);
+        await onSave(d.viaGeneral ? { name, phone } : { name, title, phone });
+        setBusy(false);
+      }}
+    >
+      <div className={`grid gap-3 ${d.viaGeneral ? "sm:grid-cols-[1fr_220px]" : "sm:grid-cols-[110px_1fr_220px]"}`}>
+        {!d.viaGeneral && (
+          <select
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            aria-label="Title"
+            className={`${input} cursor-pointer font-serif`}
+          >
+            {TITLES.map((t) => (
+              <option key={t} value={t}>
+                {t || "No title"}
+              </option>
+            ))}
+          </select>
+        )}
+        <input
+          className={input}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          aria-label="Name"
+          placeholder="Name"
+          required
+          maxLength={80}
+          autoFocus
+        />
+        <input
+          className={input}
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          aria-label="WhatsApp number"
+          placeholder="WhatsApp no. e.g. 9876543210"
+          inputMode="tel"
+        />
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <button type="submit" disabled={busy || !name.trim()} className={primaryBtn}>
+          Save
+        </button>
+        <button type="button" onClick={onCancel} className={ghostBtn}>
+          Cancel
+        </button>
+        {!d.viaGeneral && (
+          <span className="text-xs text-cocoa/50">The invitation link stays the same, so links already sent keep working.</span>
+        )}
+      </div>
+    </form>
+  );
 }
 
 /** A row of small toggle chips. */
@@ -109,6 +184,7 @@ export default function GuestList({
   const [sent, setSent] = useState<SentFilter>("all");
   const [sort, setSort] = useState<Sort>("az");
   const [page, setPage] = useState(1);
+  const [editing, setEditing] = useState<string | null>(null);
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -146,7 +222,7 @@ export default function GuestList({
     };
   }
 
-  async function patch(d: Doctor, body: object, ok: string, fail = "Could not update") {
+  async function patch(d: Doctor, body: object, ok: string, fail = "Could not update"): Promise<boolean> {
     const res = await fetch(`/api/admin/doctors/${d.slug}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -155,7 +231,11 @@ export default function GuestList({
     if (res.ok) {
       onChange((await res.json()).doctor);
       if (ok) toast(ok);
-    } else toast(fail, "error");
+      return true;
+    }
+    const msg = (await res.json().catch(() => ({}))).error;
+    toast(msg || fail, "error");
+    return false;
   }
 
   async function exportCsv() {
@@ -339,15 +419,26 @@ export default function GuestList({
                       >
                         <Copy className="size-4" />
                       </button>
-                      <a
-                        className={iconBtn}
-                        title={`Send on WhatsApp (${GROUPS.find((x) => x.id === g)?.short}'s message)`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={whatsappUrl(d.phone, whatsappMessage(templateFor(settings, g), displayName(d), link))}
-                      >
-                        <WhatsAppIcon className="size-4 text-[#25D366]" />
-                      </a>
+                      {d.phone ? (
+                        <a
+                          className={iconBtn}
+                          title={`Send on WhatsApp (${GROUPS.find((x) => x.id === g)?.short}'s message)`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={whatsappUrl(d.phone, whatsappMessage(templateFor(settings, g), displayName(d), link))}
+                        >
+                          <WhatsAppIcon className="size-4 text-[#25D366]" />
+                        </a>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setEditing(d.slug)}
+                          title="Add a WhatsApp number"
+                          className="mx-1 cursor-pointer rounded-full bg-[#fff1d6] px-2.5 py-1 text-[11px] font-bold text-[#8a5300] transition-colors hover:bg-[#ffe2a8]"
+                        >
+                          No WhatsApp number
+                        </button>
+                      )}
                       <a className={iconBtn} title="Open invitation" target="_blank" rel="noopener noreferrer" href={`/${d.slug}`}>
                         <ExternalLink className="size-4" />
                       </a>
@@ -379,6 +470,14 @@ export default function GuestList({
                   )}
                   <button
                     type="button"
+                    className={`${iconBtn} ${editing === d.slug ? "bg-cocoa/5 text-cocoa" : ""}`}
+                    title="Edit name / number"
+                    onClick={() => setEditing(editing === d.slug ? null : d.slug)}
+                  >
+                    <Pencil className="size-4" />
+                  </button>
+                  <button
+                    type="button"
                     className={`${iconBtn} hover:bg-ember/10 hover:text-ember`}
                     title="Delete invitation"
                     onClick={() => remove(d)}
@@ -386,6 +485,15 @@ export default function GuestList({
                     <Trash2 className="size-4" />
                   </button>
                 </div>
+                {editing === d.slug && (
+                  <EditGuest
+                    d={d}
+                    onCancel={() => setEditing(null)}
+                    onSave={async (body) => {
+                      if (await patch(d, body, "Saved")) setEditing(null);
+                    }}
+                  />
+                )}
               </li>
             );
           })}
