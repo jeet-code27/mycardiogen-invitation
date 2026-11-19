@@ -69,7 +69,7 @@ export default function Dashboard({
         <div className="pointer-events-none absolute top-96 -left-60 size-[620px] rounded-full bg-teal/10 blur-3xl" />
 
         <header className="sticky top-0 z-30 border-b border-cocoa/10 bg-cream/80 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 sm:px-8">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-8">
             <div className="flex items-center gap-3">
               <Logo variant="dark" className="h-10 w-auto" />
               <div className="hidden sm:block">
@@ -92,14 +92,14 @@ export default function Dashboard({
           </div>
         </header>
 
-        <div className="relative mx-auto max-w-6xl px-5 pt-8 sm:px-8">
+        <div className="relative mx-auto max-w-6xl px-4 pt-6 sm:px-8 sm:pt-8">
           {storageError && (
             <div className="mb-6 rounded-2xl border border-ember/30 bg-ember/5 p-4 text-sm text-ember">
               {storageError}
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5 [&>*:last-child]:col-span-2 sm:[&>*:last-child]:col-span-1">
             {stats.map(({ label, value, sub, Icon, tone }) => (
               <div key={label} className={`${card} flex items-start gap-3 p-4 sm:p-5`}>
                 <span className={`grid size-9 shrink-0 place-items-center rounded-xl ${tone}`}>

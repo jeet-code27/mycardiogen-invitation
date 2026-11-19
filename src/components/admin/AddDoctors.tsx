@@ -104,7 +104,7 @@ export default function AddDoctors({
   const previewSlug = slugify(preview.name, preview.title);
 
   return (
-    <div className={`${card} p-6 sm:p-8`}>
+    <div className={`${card} p-5 sm:p-8`}>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="font-serif text-2xl">Invite a doctor</h2>
@@ -165,7 +165,7 @@ export default function AddDoctors({
         </button>
         {otherMode && (
           <input
-            className={`${input} w-56! py-1.5! text-sm`}
+            className={`${input} w-full! py-1.5! text-base sm:w-56! sm:text-sm`}
             value={customGroup}
             onChange={(e) => setCustomGroup(e.target.value)}
             placeholder="Type a category, e.g. Media"
@@ -184,7 +184,8 @@ export default function AddDoctors({
             create([{ name, phone, chiefGuest, defaultTitle: title, group: chosenGroup }]);
           }}
         >
-          <div className="grid gap-3 sm:grid-cols-[110px_1fr_200px]">
+          {/* Phones: title + name on one line, number below. */}
+          <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-3 sm:grid-cols-[110px_1fr_200px]">
             <TitleSelect value={title} onChange={setTitle} />
             <label className="relative block">
               <input
@@ -198,7 +199,7 @@ export default function AddDoctors({
               />
             </label>
             <input
-              className={input}
+              className={`${input} col-span-2 sm:col-span-1`}
               placeholder="WhatsApp no. (optional)"
               inputMode="tel"
               value={phone}
@@ -243,7 +244,7 @@ export default function AddDoctors({
             <TitleSelect value={title} onChange={setTitle} className="w-28" />
           </label>
           <textarea
-            className={`${input} min-h-40 font-mono text-sm`}
+            className={`${input} min-h-40 font-mono text-base sm:text-sm`}
             placeholder={"One guest per line. Phone is optional:\nAnil Kapoor, 9876543210\nMr. Bipin Gupta, 9872034436\nRahul Mehta, +91 98765 43210"}
             value={bulk}
             onChange={(e) => setBulk(e.target.value)}

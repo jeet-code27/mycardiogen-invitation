@@ -19,7 +19,7 @@ export default function GeneralLink({
   const link = `${origin}/`;
 
   return (
-    <div className={`${card} flex flex-col gap-5 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between`}>
+    <div className={`${card} flex flex-col gap-5 p-5 sm:p-8 lg:flex-row lg:items-center lg:justify-between`}>
       <div className="flex min-w-0 items-start gap-4">
         <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-teal/10 text-teal">
           <Globe className="size-5" />

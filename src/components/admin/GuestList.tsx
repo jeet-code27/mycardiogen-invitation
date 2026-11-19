@@ -148,8 +148,9 @@ function Chips<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <div className="flex shrink-0 items-center gap-2">
-      {label && <span className="text-xs font-bold tracking-wide text-cocoa/45 uppercase">{label}</span>}
+    // On phones each row scrolls sideways (edge to edge) instead of spilling off the screen.
+    <div className="-mx-5 flex min-w-0 items-center gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+      {label && <span className="shrink-0 text-xs font-bold tracking-wide text-cocoa/45 uppercase">{label}</span>}
       {options.map(([v, text]) => (
         <button
           key={v}
@@ -163,6 +164,32 @@ function Chips<T extends string>({
         </button>
       ))}
     </div>
+  );
+}
+
+/** The "sent on WhatsApp" tick. The caller sets its display (it sits in a different spot on phones). */
+function SentToggle({ d, onToggle, className }: { d: Doctor; onToggle: () => void; className: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      title={d.sentAt ? `Sent ${when.format(new Date(d.sentAt))} · click to undo` : "Tick once the invitation is sent"}
+      aria-pressed={Boolean(d.sentAt)}
+      className={`w-[92px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full border py-1.5 text-xs font-bold transition-colors ${
+        d.sentAt
+          ? "border-[#25D366] bg-[#25D366] text-white"
+          : "border-cocoa/15 bg-white text-cocoa/55 hover:border-[#25D366] hover:text-[#128C4B]"
+      } ${className}`}
+    >
+      <span
+        className={`grid size-3.5 place-items-center rounded-[4px] border ${
+          d.sentAt ? "border-white bg-white text-[#25D366]" : "border-cocoa/30"
+        }`}
+      >
+        {d.sentAt && <Check className="size-3" strokeWidth={3} />}
+      </span>
+      {d.sentAt ? "Sent" : "Not sent"}
+    </button>
   );
 }
 
@@ -241,6 +268,10 @@ export default function GuestList({
     return false;
   }
 
+  function toggleSent(d: Doctor) {
+    patch(d, { sent: !d.sentAt }, d.sentAt ? "Marked as not sent" : "Marked as sent");
+  }
+
   async function exportCsv() {
     const res = await fetch("/api/admin/export");
     if (!res.ok) return toast("Could not export", "error");
@@ -265,7 +296,7 @@ export default function GuestList({
 
   return (
     <div className={`${card} overflow-hidden`}>
-      <div className="flex flex-col gap-4 border-b border-cocoa/10 p-6 sm:p-8 lg:flex-row lg:items-end lg:justify-between">
+      <div className="flex flex-col gap-4 border-b border-cocoa/10 p-5 sm:p-8 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h2 className="font-serif text-2xl">Guest list</h2>
           <p className="mt-1 text-sm text-cocoa/60">
@@ -282,7 +313,7 @@ export default function GuestList({
               value={query}
               onChange={(e) => reset(setQuery)(e.target.value)}
               placeholder="Search guests"
-              className="w-full rounded-full border border-cocoa/15 bg-white py-2 pr-4 pl-10 text-sm focus:border-teal focus:ring-4 focus:ring-teal/15 focus:outline-none sm:w-56"
+              className="w-full rounded-full border border-cocoa/15 bg-white py-2 pr-4 pl-10 text-base focus:border-teal sm:text-sm focus:ring-4 focus:ring-teal/15 focus:outline-none sm:w-56"
             />
           </label>
           <button type="button" onClick={exportCsv} className={ghostBtn}>
@@ -291,11 +322,9 @@ export default function GuestList({
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 px-6 pt-5 sm:px-8">
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          <Chips value={filter} options={FILTERS} onChange={reset(setFilter)} />
-        </div>
-        <div className="flex flex-wrap gap-x-6 gap-y-3 overflow-x-auto pb-1">
+      <div className="flex flex-col gap-3 px-5 pt-5 sm:px-8">
+        <Chips value={filter} options={FILTERS} onChange={reset(setFilter)} />
+        <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:gap-x-6">
           <Chips
             label="List"
             value={group}
@@ -329,14 +358,14 @@ export default function GuestList({
           {doctors.length === 0 ? "No invitations yet. Add your first guest above." : "No guests match."}
         </p>
       ) : (
-        <ul className="divide-y divide-cocoa/8 p-2 sm:p-4">
+        <ul className="divide-y divide-cocoa/8 p-1 sm:p-4">
           {pageItems.map((d) => {
             const link = inviteLink(origin, d.slug);
             const g = groupOf(d);
             return (
               <li
                 key={d.slug}
-                className="grid gap-3 rounded-2xl p-4 transition-colors hover:bg-cocoa/[0.03] lg:grid-cols-[minmax(0,1fr)_150px_auto] lg:items-center lg:gap-6"
+                className="grid grid-cols-[minmax(0,1fr)] gap-3 rounded-2xl p-3 transition-colors sm:p-4 hover:bg-cocoa/[0.03] lg:grid-cols-[minmax(0,1fr)_150px_auto] lg:items-center lg:gap-6"
               >
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-2 font-serif text-lg">
@@ -406,7 +435,7 @@ export default function GuestList({
                     </div>
                   )}
                 </div>
-                <div className="flex items-center gap-3 lg:flex-col lg:items-end lg:gap-1">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 lg:flex-col lg:flex-nowrap lg:items-end lg:gap-1">
                   <StatusBadge d={d} />
                   <span className="text-xs whitespace-nowrap text-cocoa/45">
                     {d.rsvp
@@ -415,39 +444,24 @@ export default function GuestList({
                         ? `Seen ${when.format(new Date(d.lastOpenedAt))}`
                         : `Added ${when.format(new Date(d.createdAt))}`}
                   </span>
+                  {/* Phones: the sent tick sits here so the icon row below fits the screen. */}
+                  {!d.viaGeneral && (
+                    <SentToggle d={d} onToggle={() => toggleSent(d)} className="ml-auto inline-flex lg:hidden" />
+                  )}
                 </div>
-                {/* Every action has a fixed slot (blank when it doesn't apply) so all rows line up. */}
-                <div className="flex items-center gap-0.5 lg:justify-end">
+                {/* Desktop: every action has a fixed slot (blank when it doesn't apply) so all rows line up. */}
+                <div className="-ml-2 flex flex-wrap items-center gap-0.5 lg:ml-0 lg:flex-nowrap lg:justify-end">
                   {d.viaGeneral ? (
                     <>
-                      <span aria-hidden className="mr-1 w-[92px]" />
-                      <span aria-hidden className="size-9" />
-                      <span aria-hidden className="size-9" />
-                      <span aria-hidden className="size-9" />
-                      <span aria-hidden className="size-9" />
+                      <span aria-hidden className="mr-1 hidden w-[92px] lg:block" />
+                      <span aria-hidden className="hidden size-9 lg:block" />
+                      <span aria-hidden className="hidden size-9 lg:block" />
+                      <span aria-hidden className="hidden size-9 lg:block" />
+                      <span aria-hidden className="hidden size-9 lg:block" />
                     </>
                   ) : (
                     <>
-                      <button
-                        type="button"
-                        onClick={() => patch(d, { sent: !d.sentAt }, d.sentAt ? "Marked as not sent" : "Marked as sent")}
-                        title={d.sentAt ? `Sent ${when.format(new Date(d.sentAt))} · click to undo` : "Tick once the invitation is sent"}
-                        aria-pressed={Boolean(d.sentAt)}
-                        className={`mr-1 inline-flex w-[92px] cursor-pointer items-center justify-center gap-1.5 rounded-full border py-1.5 text-xs font-bold transition-colors ${
-                          d.sentAt
-                            ? "border-[#25D366] bg-[#25D366] text-white"
-                            : "border-cocoa/15 bg-white text-cocoa/55 hover:border-[#25D366] hover:text-[#128C4B]"
-                        }`}
-                      >
-                        <span
-                          className={`grid size-3.5 place-items-center rounded-[4px] border ${
-                            d.sentAt ? "border-white bg-white text-[#25D366]" : "border-cocoa/30"
-                          }`}
-                        >
-                          {d.sentAt && <Check className="size-3" strokeWidth={3} />}
-                        </span>
-                        {d.sentAt ? "Sent" : "Not sent"}
-                      </button>
+                      <SentToggle d={d} onToggle={() => toggleSent(d)} className="mr-1 hidden lg:inline-flex" />
                       <button
                         type="button"
                         className={iconBtn}
@@ -508,7 +522,7 @@ export default function GuestList({
                       <RotateCcw className="size-4" />
                     </button>
                   ) : (
-                    <span aria-hidden className="size-9" />
+                    <span aria-hidden className="hidden size-9 lg:block" />
                   )}
                   <button
                     type="button"
@@ -543,7 +557,7 @@ export default function GuestList({
       )}
 
       {shown.length > PAGE_SIZE && (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-cocoa/10 px-6 py-4 text-sm sm:px-8">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-cocoa/10 px-5 py-4 text-sm sm:px-8">
           <span className="text-cocoa/55">
             Showing {(current - 1) * PAGE_SIZE + 1}–{Math.min(current * PAGE_SIZE, shown.length)} of {shown.length}
           </span>
@@ -555,7 +569,7 @@ export default function GuestList({
               onClick={() => setPage(current - 1)}
               aria-label="Previous page"
             >
-              <ChevronLeft className="size-4" /> Prev
+              <ChevronLeft className="size-4" /> <span className="hidden sm:inline">Prev</span>
             </button>
             {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
               <button
@@ -577,7 +591,7 @@ export default function GuestList({
               onClick={() => setPage(current + 1)}
               aria-label="Next page"
             >
-              Next <ChevronRight className="size-4" />
+<span className="hidden sm:inline">Next</span> <ChevronRight className="size-4" />
             </button>
           </div>
         </div>

@@ -61,7 +61,7 @@ export default function SettingsCard({
   }
 
   return (
-    <form onSubmit={save} className={`${card} p-6 sm:p-8`}>
+    <form onSubmit={save} className={`${card} p-5 sm:p-8`}>
       <h2 className="font-serif text-2xl">Invitation settings</h2>
       <p className="mt-1 text-sm text-cocoa/60">Applies to every invitation instantly.</p>
 
@@ -120,7 +120,7 @@ export default function SettingsCard({
         </span>
         {messageFor === "anand" ? (
           <textarea
-            className={`${input} min-h-56 text-sm leading-relaxed`}
+            className={`${input} min-h-56 text-base leading-relaxed sm:text-sm`}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             maxLength={3000}
@@ -128,7 +128,7 @@ export default function SettingsCard({
           />
         ) : (
           <textarea
-            className={`${input} min-h-56 text-sm leading-relaxed`}
+            className={`${input} min-h-56 text-base leading-relaxed sm:text-sm`}
             value={messageRavinder}
             onChange={(e) => setMessageRavinder(e.target.value)}
             maxLength={3000}
