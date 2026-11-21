@@ -7,6 +7,7 @@ import Logo from "@/components/Logo";
 import { EVENT, formatEventTime } from "@/lib/event";
 import { CalendarButtons } from "@/components/invite/EventDetails";
 import { EASE, Eyebrow } from "@/components/invite/Reveal";
+import VideoPlayer from "@/components/invite/VideoPlayer";
 
 type Status = "attending" | "declined";
 
@@ -38,7 +39,8 @@ const enter = (i: number) => ({
   transition: { duration: 0.8, ease: EASE, delay: 0.1 + i * 0.08 },
 });
 
-export default function Reminder({ eventTime }: { eventTime: string }) {
+/** `videoUrl` adds the founders' video under the invitation text (the /reminder-video page). */
+export default function Reminder({ eventTime, videoUrl }: { eventTime: string; videoUrl?: string }) {
   const [choice, setChoice] = useState<Status | null>(null);
   const [done, setDone] = useState<Status | null>(null);
   const [name, setName] = useState("");
@@ -126,6 +128,12 @@ export default function Reminder({ eventTime }: { eventTime: string }) {
         <motion.p {...enter(5)} className="mt-3 text-center text-[15px] leading-relaxed text-cream/75">
           Your presence would make this occasion even more special. We look forward to welcoming you.
         </motion.p>
+
+        {videoUrl !== undefined && (
+          <motion.div {...enter(5)} className="mt-4">
+            <VideoPlayer videoUrl={videoUrl} compact />
+          </motion.div>
+        )}
 
         <motion.div {...enter(6)} className="mt-4">
           <AnimatePresence mode="wait">

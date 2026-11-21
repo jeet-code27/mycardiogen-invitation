@@ -1,6 +1,6 @@
 "use client";
 
-import { BellRing, Copy, ExternalLink, Globe } from "lucide-react";
+import { BellRing, Clapperboard, Copy, ExternalLink, Globe } from "lucide-react";
 import { REMINDER_WHATSAPP_MESSAGE } from "@/lib/whatsapp";
 import { card, ghostBtn, useToast } from "./ui";
 import { copyText, whatsappMessage, whatsappUrl } from "./share";
@@ -96,6 +96,17 @@ export default function GeneralLink({
         path="/reminder"
         message={REMINDER_WHATSAPP_MESSAGE}
         copied="Reminder link copied"
+      />
+      <div className="h-px bg-cocoa/10" />
+      <LinkRow
+        Icon={Clapperboard}
+        tone="bg-brand/10 text-ember"
+        title="Reminder page + video"
+        text="The same reminder with the founders' video under the invitation text. Replies are counted with the reminder page."
+        link={`${origin}/reminder-video`}
+        path="/reminder-video"
+        message={REMINDER_WHATSAPP_MESSAGE}
+        copied="Reminder + video link copied"
       />
     </div>
   );
