@@ -12,6 +12,15 @@ In Indians, heart risk often starts earlier and runs in families, and a routine 
 Please open your invitation and RSVP here:
 {link}`;
 
+/** Sent with the /reminder page link from the admin. */
+export const REMINDER_WHATSAPP_MESSAGE = `A gentle reminder: you are invited to the launch of MyCardioGen.
+
+📅 Saturday, 28 November 2026, 7:30 PM
+📍 Le Méridien, Windsor Place, New Delhi
+
+We would be delighted to have you with us. Please confirm your attendance here:
+{link}`;
+
 /** Fills a message template. Without a name (general link), lines that use {name} are dropped. */
 export function fillMessage(template: string, { name, link }: { name: string; link: string }): string {
   let text = (template.trim() || DEFAULT_WHATSAPP_MESSAGE).replace(/\r\n/g, "\n");

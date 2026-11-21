@@ -22,7 +22,7 @@ import { card, ghostBtn, iconBtn, input, primaryBtn, useToast } from "./ui";
 import { copyText, inviteLink, whatsappMessage, whatsappUrl } from "./share";
 import WhatsAppIcon from "./WhatsAppIcon";
 
-type Filter = "all" | "attending" | "declined" | "awaiting" | "unopened" | "general";
+type Filter = "all" | "attending" | "declined" | "awaiting" | "unopened" | "general" | "reminder";
 type SentFilter = "all" | "sent" | "unsent";
 type Sort = "az" | "newest";
 
@@ -33,6 +33,7 @@ const FILTERS: [Filter, string][] = [
   ["awaiting", "Awaiting reply"],
   ["unopened", "Not opened"],
   ["general", "General link"],
+  ["reminder", "Via reminder"],
 ];
 
 const PAGE_SIZE = 25;
@@ -229,6 +230,7 @@ export default function GuestList({
       if (filter === "awaiting") return !d.rsvp;
       if (filter === "unopened") return !d.firstOpenedAt && !d.viaGeneral;
       if (filter === "general") return d.viaGeneral;
+      if (filter === "reminder") return d.rsvp?.via === "reminder";
       return true;
     });
     // A–Z goes by the name itself, so "Dr." / "Mr." don't bunch everyone under D and M.
@@ -372,7 +374,7 @@ export default function GuestList({
                     {displayName(d)}
                     {d.viaGeneral && (
                       <span className="rounded-full bg-teal/10 px-2.5 py-0.5 font-sans text-[11px] font-bold text-teal">
-                        General link
+                        {d.via === "reminder" ? "Reminder page" : "General link"}
                       </span>
                     )}
                     {d.chiefGuest && (
@@ -432,6 +434,11 @@ export default function GuestList({
                         </span>
                       )}
                       {d.rsvp.message && <span className="italic">“{d.rsvp.message}”</span>}
+                      {d.rsvp.via === "reminder" && (
+                        <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-bold text-ember">
+                          via reminder
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>

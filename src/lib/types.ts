@@ -6,6 +6,8 @@ export interface Rsvp {
   phone?: string;
   message?: string;
   respondedAt: string;
+  /** Answered on the short /reminder page rather than on the invitation itself. */
+  via?: "reminder";
 }
 
 export interface Doctor {
@@ -31,6 +33,8 @@ export interface Doctor {
    * exactly as the guest typed it, which may or may not start with "Dr.".
    */
   viaGeneral?: boolean;
+  /** With `viaGeneral`: the entry was created on the /reminder page, not the home-page invitation. */
+  via?: "reminder";
 }
 
 export interface Settings {

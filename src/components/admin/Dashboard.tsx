@@ -117,7 +117,8 @@ export default function Dashboard({
           <div className="mt-6">
             <GeneralLink
               origin={origin}
-              responses={doctors.filter((d) => d.viaGeneral).length}
+              responses={doctors.filter((d) => d.viaGeneral && d.via !== "reminder").length}
+              reminderResponses={doctors.filter((d) => d.rsvp?.via === "reminder").length}
               messageTemplate={settings.whatsappMessage}
             />
           </div>
