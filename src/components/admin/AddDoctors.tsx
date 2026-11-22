@@ -49,7 +49,7 @@ export default function AddDoctors({
   onCreated,
 }: {
   origin: string;
-  settings: Pick<Settings, "whatsappMessage" | "whatsappMessageRavinder">;
+  settings: Pick<Settings, "whatsappMessage" | "whatsappMessageRavinder" | "listMessages">;
   /** Lists to offer: the built-in ones plus custom categories already in use. */
   groups: Group[];
   onCreated: (doctors: Doctor[]) => void;

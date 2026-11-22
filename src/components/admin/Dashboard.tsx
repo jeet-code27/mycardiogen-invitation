@@ -130,7 +130,7 @@ export default function Dashboard({
               groups={allGroups(doctors)}
               onCreated={(created) => setDoctors((d) => [...created.reverse(), ...d])}
             />
-            <SettingsCard initial={initialSettings} onSaved={setSettings} />
+            <SettingsCard initial={initialSettings} groups={allGroups(doctors)} onSaved={setSettings} />
           </div>
 
           <div className="mt-6">

@@ -17,6 +17,7 @@ export const DEFAULT_SETTINGS: Settings = {
   eventTime: "",
   whatsappMessage: "",
   whatsappMessageRavinder: "",
+  listMessages: {},
 };
 
 export class StorageNotConfiguredError extends Error {
@@ -101,7 +102,7 @@ function fileStore(): Store {
     putDoctor: (doctor) => mutate((d) => void (d.doctors[doctor.slug] = doctor)),
     deleteDoctor: (slug) => mutate((d) => void delete d.doctors[slug]),
     async getSettings() {
-      return (await read()).settings;
+      return { ...DEFAULT_SETTINGS, ...(await read()).settings };
     },
     putSettings: (settings) => mutate((d) => void (d.settings = settings)),
   };

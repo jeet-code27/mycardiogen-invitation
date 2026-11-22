@@ -37,6 +37,9 @@ export interface Doctor {
   via?: "reminder";
 }
 
+/** The two WhatsApp messages the admin can write. */
+export type MessageKey = "anand" | "ravinder";
+
 export interface Settings {
   /** YouTube, Vimeo or direct .mp4 URL. Empty shows the placeholder. */
   videoUrl: string;
@@ -46,6 +49,11 @@ export interface Settings {
   whatsappMessage: string;
   /** Message for Dr. Ravinder's contacts; empty falls back to `whatsappMessage`. */
   whatsappMessageRavinder: string;
+  /**
+   * Which message each contact list gets, by list id. Lists not named here use the default:
+   * Dr. Ravinder's list his message, every other list Dr. Anand's.
+   */
+  listMessages: Record<string, MessageKey>;
 }
 
 /** The subset of a doctor that is safe to send to the public invitation page. */

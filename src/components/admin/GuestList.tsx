@@ -16,8 +16,8 @@ import {
 } from "lucide-react";
 import type { Doctor, Settings } from "@/lib/types";
 import { TITLES, cleanName, displayName } from "@/lib/slug";
-import { allGroups, groupLabel, groupOf, groupShort } from "@/lib/groups";
-import { templateFor } from "@/lib/whatsapp";
+import { allGroups, groupLabel, groupOf } from "@/lib/groups";
+import { messageKeyFor, templateFor } from "@/lib/whatsapp";
 import { card, ghostBtn, iconBtn, input, primaryBtn, useToast } from "./ui";
 import { copyText, inviteLink, whatsappMessage, whatsappUrl } from "./share";
 import WhatsAppIcon from "./WhatsAppIcon";
@@ -203,7 +203,7 @@ export default function GuestList({
 }: {
   doctors: Doctor[];
   origin: string;
-  settings: Pick<Settings, "whatsappMessage" | "whatsappMessageRavinder">;
+  settings: Pick<Settings, "whatsappMessage" | "whatsappMessageRavinder" | "listMessages">;
   onChange: (d: Doctor) => void;
   onRemove: (slug: string) => void;
 }) {
@@ -482,7 +482,7 @@ export default function GuestList({
                       {d.phone ? (
                         <a
                           className={iconBtn}
-                          title={`Send on WhatsApp (${g === "ravinder" ? groupShort(g) : "Dr. Anand"}'s message)`}
+                          title={`Send on WhatsApp (${messageKeyFor(settings, g) === "ravinder" ? "Dr. Ravinder" : "Dr. Anand"}'s message)`}
                           target="_blank"
                           rel="noopener noreferrer"
                           href={whatsappUrl(d.phone, whatsappMessage(templateFor(settings, g), displayName(d), link))}

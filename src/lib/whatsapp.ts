@@ -1,3 +1,5 @@
+import type { MessageKey, Settings } from "./types";
+
 /**
  * The WhatsApp message the admin sends with each invitation. It is editable in the admin
  * settings; `{name}` becomes the guest's name and `{link}` their invitation link.
@@ -30,10 +32,17 @@ export function fillMessage(template: string, { name, link }: { name: string; li
   return text.includes("{link}") ? text.replaceAll("{link}", link) : `${text}\n\n${link}`;
 }
 
-/** The template for a contact list: Dr. Ravinder's own message if written, else the main one. */
-export function templateFor(
-  settings: { whatsappMessage: string; whatsappMessageRavinder: string },
-  group: string,
-): string {
-  return (group === "ravinder" && settings.whatsappMessageRavinder.trim()) || settings.whatsappMessage;
+type MessageSettings = Pick<Settings, "whatsappMessage" | "whatsappMessageRavinder" | "listMessages">;
+
+/** Which message a contact list gets: the admin's choice, else Dr. Ravinder's for his list, Dr. Anand's for the rest. */
+export function messageKeyFor(settings: Pick<Settings, "listMessages">, group: string): MessageKey {
+  return settings.listMessages?.[group] ?? (group === "ravinder" ? "ravinder" : "anand");
+}
+
+/** The template for a contact list. Dr. Ravinder's message falls back to the main one until it is written. */
+export function templateFor(settings: MessageSettings, group: string): string {
+  return (
+    (messageKeyFor(settings, group) === "ravinder" && settings.whatsappMessageRavinder.trim()) ||
+    settings.whatsappMessage
+  );
 }

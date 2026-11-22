@@ -2,17 +2,20 @@
 
 import { useState } from "react";
 import { Film, LoaderCircle, MessageCircle } from "lucide-react";
-import type { Settings } from "@/lib/types";
+import type { MessageKey, Settings } from "@/lib/types";
 import { parseVideo } from "@/lib/video";
-import { DEFAULT_WHATSAPP_MESSAGE } from "@/lib/whatsapp";
-import { MESSAGE_GROUPS } from "@/lib/groups";
+import { DEFAULT_WHATSAPP_MESSAGE, messageKeyFor } from "@/lib/whatsapp";
+import { MESSAGE_GROUPS, type Group } from "@/lib/groups";
 import { card, input, primaryBtn, useToast } from "./ui";
 
 export default function SettingsCard({
   initial,
+  groups,
   onSaved,
 }: {
   initial: Settings;
+  /** Every contact list in use, so each can be given Dr. Anand's or Dr. Ravinder's message. */
+  groups: Group[];
   onSaved: (settings: Settings) => void;
 }) {
   const toast = useToast();
@@ -22,6 +25,7 @@ export default function SettingsCard({
   const [message, setMessage] = useState(initial.whatsappMessage || DEFAULT_WHATSAPP_MESSAGE);
   const [messageRavinder, setMessageRavinder] = useState(initial.whatsappMessageRavinder);
   const [messageFor, setMessageFor] = useState<string>("anand");
+  const [listMessages, setListMessages] = useState<Record<string, MessageKey>>(initial.listMessages ?? {});
   const [saved, setSaved] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -30,7 +34,8 @@ export default function SettingsCard({
     videoUrl !== saved.videoUrl ||
     eventTime !== saved.eventTime ||
     message !== (saved.whatsappMessage || DEFAULT_WHATSAPP_MESSAGE) ||
-    messageRavinder !== saved.whatsappMessageRavinder;
+    messageRavinder !== saved.whatsappMessageRavinder ||
+    groups.some((g) => messageKeyFor({ listMessages }, g.id) !== messageKeyFor(saved, g.id));
   const parsed = parseVideo(videoUrl);
 
   async function save(e: React.FormEvent) {
@@ -46,6 +51,7 @@ export default function SettingsCard({
           eventTime,
           whatsappMessage: message,
           whatsappMessageRavinder: messageRavinder,
+          listMessages,
         }),
       });
       const data = await res.json();
@@ -132,7 +138,7 @@ export default function SettingsCard({
             value={messageRavinder}
             onChange={(e) => setMessageRavinder(e.target.value)}
             maxLength={3000}
-            placeholder={"Write Dr. Ravinder's message here.\nUntil then, his contacts get Dr. Anand's message.\nAll other lists (e.g. Insta influencer) use Dr. Anand's message.\n\nPlease open your invitation and RSVP here:\n{link}"}
+            placeholder={"Write Dr. Ravinder's message here.\nUntil it is written, lists set to his message get Dr. Anand's.\n\nPlease open your invitation and RSVP here:\n{link}"}
             aria-label="WhatsApp message for Dr. Ravinder's contacts"
           />
         )}
@@ -151,6 +157,44 @@ export default function SettingsCard({
           )}
         </span>
       </label>
+
+      <div className="mt-5">
+        <p className="text-sm font-bold">Which list gets which message</p>
+        <div className="mt-2 divide-y divide-cocoa/8 rounded-xl border border-cocoa/10">
+          {groups.map((g) => {
+            const current = messageKeyFor({ listMessages }, g.id);
+            return (
+              <div key={g.id} className="flex items-center justify-between gap-3 px-3 py-2">
+                <span className="min-w-0 truncate text-sm text-cocoa/80">{g.label}</span>
+                <span className="flex shrink-0 rounded-full bg-cocoa/5 p-0.5 text-xs font-bold">
+                  {(
+                    [
+                      ["anand", "Dr. Anand"],
+                      ["ravinder", "Dr. Ravinder"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setListMessages((m) => ({ ...m, [g.id]: key }))}
+                      aria-pressed={current === key}
+                      aria-label={`${g.label}: ${label}'s message`}
+                      className={`cursor-pointer rounded-full px-3 py-1 transition-colors ${
+                        current === key ? "bg-cocoa text-cream" : "text-cocoa/55 hover:text-cocoa"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        <span className="mt-2 block text-xs text-cocoa/50">
+          The WhatsApp button next to each guest sends the message chosen for their list.
+        </span>
+      </div>
 
       {error && <p className="mt-4 text-sm text-ember">{error}</p>}
 

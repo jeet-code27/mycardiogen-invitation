@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { handler, jsonError } from "@/lib/api";
+import type { MessageKey, Settings } from "@/lib/types";
 
 export const GET = handler(async () => NextResponse.json({ settings: await db.getSettings() }), {
   admin: true,
@@ -13,6 +14,7 @@ export const PUT = handler(
       eventTime?: string;
       whatsappMessage?: string;
       whatsappMessageRavinder?: string;
+      listMessages?: unknown;
     };
     const videoUrl = String(body.videoUrl ?? "").trim();
     const eventTime = String(body.eventTime ?? "").trim();
@@ -30,7 +32,15 @@ export const PUT = handler(
       return jsonError("Event time must look like 19:00.", 400);
     }
 
-    const settings = { videoUrl, eventTime, whatsappMessage, whatsappMessageRavinder };
+    // { "<list id>": "anand" | "ravinder" } — anything else is dropped.
+    const listMessages: Record<string, MessageKey> = {};
+    if (body.listMessages && typeof body.listMessages === "object") {
+      for (const [list, key] of Object.entries(body.listMessages).slice(0, 100)) {
+        if ((key === "anand" || key === "ravinder") && list.trim() && list.length <= 60) listMessages[list] = key;
+      }
+    }
+
+    const settings: Settings = { videoUrl, eventTime, whatsappMessage, whatsappMessageRavinder, listMessages };
     await db.putSettings(settings);
     return NextResponse.json({ settings });
   },
