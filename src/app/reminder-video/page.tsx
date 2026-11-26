@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { db, DEFAULT_SETTINGS } from "@/lib/db";
 import type { Settings } from "@/lib/types";
+import { resolveEventTime } from "@/lib/event";
 import Reminder from "@/components/reminder/Reminder";
 
 export const metadata: Metadata = {
   title: "A reminder · MyCardioGen India Launch",
   description:
-    "Join us for the launch of MyCardioGen. Saturday, 28 November 2026, 7:30 PM, Le Méridien, Windsor Place, New Delhi.",
+    "Join us for the launch of MyCardioGen. Saturday, 28 November 2026, 7:00 PM, Le Méridien, Windsor Place, New Delhi.",
 };
 
 // Per request, so video / time changes in the admin show up immediately.
@@ -20,6 +21,6 @@ export default async function ReminderVideoPage() {
   } catch {
     // Storage not configured: still show the page with defaults.
   }
-  const eventTime = /^\d{2}:\d{2}$/.test(settings.eventTime) ? settings.eventTime : "19:30";
+  const eventTime = resolveEventTime(settings.eventTime);
   return <Reminder eventTime={eventTime} videoUrl={settings.videoUrl} />;
 }

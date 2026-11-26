@@ -1,21 +1,24 @@
 "use client";
 
 import { motion } from "motion/react";
-import { ArrowDown, CalendarDays, Crown, MapPin } from "lucide-react";
+import { ArrowDown, CalendarDays, Clock, Crown, MapPin } from "lucide-react";
 import HeartSceneLazy from "@/components/three/HeartSceneLazy";
 import Logo from "@/components/Logo";
-import { EVENT } from "@/lib/event";
+import { EVENT, shortEventTime } from "@/lib/event";
 import { EASE } from "./Reveal";
 
 export default function Hero({
   name,
   chiefGuest,
   opened,
+  eventTime,
 }: {
   name: string;
   chiefGuest?: boolean;
   opened: boolean;
+  eventTime: string;
 }) {
+  const time = shortEventTime(eventTime);
   const item = (delay: number) => ({
     initial: { opacity: 0, y: 26, filter: "blur(8px)" },
     animate: opened ? { opacity: 1, y: 0, filter: "blur(0px)" } : {},
@@ -87,6 +90,12 @@ export default function Hero({
               <CalendarDays className="size-4 text-brand" />
               Sat, 28 November 2026
             </span>
+            {time && (
+              <span className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-cream/90">
+                <Clock className="size-4 text-brand" />
+                {time} onwards
+              </span>
+            )}
             <span className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-cream/90">
               <MapPin className="size-4 text-cyan" />
               {EVENT.venueName}, New Delhi

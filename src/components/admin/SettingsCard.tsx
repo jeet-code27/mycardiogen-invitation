@@ -101,7 +101,7 @@ export default function SettingsCard({
           onChange={(e) => setEventTime(e.target.value)}
         />
         <span className="mt-2 block text-xs text-cocoa/50">
-          Optional. Shown on the invitation and used for the countdown and calendar invites.
+          Leave empty for 7:00 PM. Shown on the invitation and used for the countdown and calendar invites.
         </span>
       </label>
 

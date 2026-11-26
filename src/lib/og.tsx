@@ -1,12 +1,12 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { ImageResponse } from "next/og";
-import { EVENT } from "./event";
+import { DEFAULT_EVENT_TIME, EVENT, shortEventTime } from "./event";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
 /** Social / WhatsApp preview card: the 3D heart on the right, the guest's name on the left. */
-export async function renderInviteCard(name?: string, chiefGuest = false) {
+export async function renderInviteCard(name?: string, chiefGuest = false, time = shortEventTime(DEFAULT_EVENT_TIME)) {
   // Literal paths so the bundler traces exactly these files.
   const [serif, sans, heart, logoSvg] = await Promise.all([
     readFile(path.join(process.cwd(), "assets", "DMSerifDisplay-Regular.ttf")),
@@ -83,7 +83,7 @@ export async function renderInviteCard(name?: string, chiefGuest = false) {
           </div>
           <div style={{ display: "flex", flexDirection: "column", fontFamily: "Oxygen" }}>
             <div style={{ display: "flex", width: 120, height: 2, background: "#fd291b", marginBottom: 18 }} />
-            <div style={{ fontSize: 24, color: "#fffdf2" }}>{EVENT.dateLong}</div>
+            <div style={{ fontSize: 24, color: "#fffdf2" }}>{`${EVENT.dateLong} · ${time}`}</div>
             <div style={{ fontSize: 22, color: "rgba(255,253,242,0.6)", marginTop: 6 }}>{EVENT.venueFull}</div>
           </div>
         </div>

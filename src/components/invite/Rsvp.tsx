@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Check, Heart, LoaderCircle, X } from "lucide-react";
 import type { PublicDoctor, RsvpStatus } from "@/lib/types";
-import { EVENT } from "@/lib/event";
+import { EVENT, shortEventTime } from "@/lib/event";
 import { CalendarButtons } from "./EventDetails";
 import Reveal, { EASE, Eyebrow } from "./Reveal";
 
@@ -116,7 +116,7 @@ export default function Rsvp({
                       <h2 className="mt-8 font-serif text-3xl sm:text-4xl">Thank you, {displayName}!</h2>
                       <p className="mx-auto mt-4 max-w-md leading-relaxed text-cream/70">
                         Your attendance{result.guests > 1 ? " with a guest" : ""} is confirmed. We look forward to
-                        welcoming you{doctor.chiefGuest ? " as our Chief Guest" : " personally"} on {EVENT.dateLong} at {EVENT.venueName}, New Delhi.
+                        welcoming you{doctor.chiefGuest ? " as our Chief Guest" : " personally"} on {EVENT.dateLong} at {shortEventTime(eventTime)}, {EVENT.venueName}, New Delhi.
                       </p>
                       <CalendarButtons eventTime={eventTime} className="mt-8 justify-center" />
                     </>

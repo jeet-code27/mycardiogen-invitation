@@ -165,7 +165,7 @@ export default function Reminder({ eventTime, videoUrl }: { eventTime: string; v
                   <>
                     <h2 className="mt-4 font-serif text-2xl">Thank you{firstName ? `, ${firstName}` : ""}!</h2>
                     <p className="mt-2 text-sm leading-relaxed text-cream/70">
-                      Your attendance is confirmed. See you on 28 November at {EVENT.venueName}.
+                      Your attendance is confirmed. See you on 28 November at {time}, {EVENT.venueName}.
                     </p>
                     <CalendarButtons eventTime={eventTime} className="mt-4 justify-center" />
                   </>

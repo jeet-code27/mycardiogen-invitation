@@ -69,9 +69,9 @@ export default function Invitation({
     <main className="grain relative overflow-x-clip">
       <IntroSeal name={doctor.name} chiefGuest={doctor.chiefGuest} open={opened} onOpen={open} />
 
-      <Hero name={doctor.name} chiefGuest={doctor.chiefGuest} opened={opened} />
+      <Hero name={doctor.name} chiefGuest={doctor.chiefGuest} opened={opened} eventTime={eventTime} />
       <VideoSection videoUrl={videoUrl} />
-      <Launch />
+      <Launch eventTime={eventTime} />
       <Hosts />
       <EventDetails eventTime={eventTime} />
       <Rsvp doctor={doctor} eventTime={eventTime} />

@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- small brand SVG icons */
 import Ecg from "@/components/Ecg";
+import { shortEventTime } from "@/lib/event";
 import Reveal, { Eyebrow } from "./Reveal";
 
 const PILLARS = [
@@ -9,7 +10,8 @@ const PILLARS = [
   { icon: "/brand/icon-doctor.svg", title: "Doctor Consultation", text: "Personalised expert guidance", tint: "bg-[#ffe7cd]" },
 ];
 
-export default function Launch() {
+export default function Launch({ eventTime }: { eventTime: string }) {
+  const time = shortEventTime(eventTime);
   return (
     <section id="launch" className="relative px-6 py-24 sm:px-10 sm:py-32">
       <div className="mx-auto max-w-5xl text-center">
@@ -25,7 +27,13 @@ export default function Launch() {
         <Reveal delay={0.2}>
           <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-cream/75">
             Join us for MyCardioGen&apos;s India launch on{" "}
-            <strong className="font-bold text-cream">Saturday, 28 November</strong> at{" "}
+            <strong className="font-bold text-cream">Saturday, 28 November</strong>
+            {time && (
+              <>
+                , <strong className="font-bold text-cream">{time} onwards</strong>,
+              </>
+            )}{" "}
+            at{" "}
             <strong className="font-bold text-cream">Le Méridien, New Delhi</strong>.
           </p>
           <p className="mx-auto mt-4 max-w-2xl leading-relaxed text-cream/60">

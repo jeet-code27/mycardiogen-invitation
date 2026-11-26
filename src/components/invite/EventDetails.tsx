@@ -77,8 +77,8 @@ export default function EventDetails({ eventTime }: { eventTime: string }) {
                 </div>
               </div>
               {time && (
-                <p className="mt-6 inline-flex items-center gap-2 text-cream/80">
-                  <Clock className="size-4 text-brand" />
+                <p className="mt-6 inline-flex items-center gap-2.5 font-serif text-2xl text-cream sm:text-3xl">
+                  <Clock className="size-5 text-brand sm:size-6" />
                   {time}
                 </p>
               )}

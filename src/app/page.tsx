@@ -1,5 +1,6 @@
 import { db, DEFAULT_SETTINGS } from "@/lib/db";
 import type { Settings } from "@/lib/types";
+import { resolveEventTime } from "@/lib/event";
 import Invitation from "@/components/invite/Invitation";
 
 // Render per request so video / time changes from the admin show up immediately.
@@ -14,6 +15,6 @@ export default async function Home() {
     // Storage not configured yet: still show the invitation with defaults.
   }
   return (
-    <Invitation doctor={{ slug: "", name: "" }} videoUrl={settings.videoUrl} eventTime={settings.eventTime} />
+    <Invitation doctor={{ slug: "", name: "" }} videoUrl={settings.videoUrl} eventTime={resolveEventTime(settings.eventTime)} />
   );
 }

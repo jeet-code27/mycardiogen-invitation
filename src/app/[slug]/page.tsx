@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { EVENT } from "@/lib/event";
+import { EVENT, resolveEventTime, shortEventTime } from "@/lib/event";
 import Invitation from "@/components/invite/Invitation";
 import { displayName } from "@/lib/slug";
 
@@ -9,12 +9,12 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const doctor = await db.getDoctor(slug);
+  const [doctor, settings] = await Promise.all([db.getDoctor(slug), db.getSettings().catch(() => null)]);
   if (!doctor) return { title: "Invitation not found · MyCardioGen" };
   const title = doctor.chiefGuest
     ? `${displayName(doctor)}, Chief Guest · MyCardioGen India Launch`
     : `${displayName(doctor)}, you're invited · MyCardioGen India Launch`;
-  const description = `The India launch of MyCardioGen — ${EVENT.dateLong} at ${EVENT.venueFull}. Please confirm your attendance.`;
+  const description = `The India launch of MyCardioGen — ${EVENT.dateLong}, ${shortEventTime(resolveEventTime(settings?.eventTime))} at ${EVENT.venueFull}. Please confirm your attendance.`;
   return { title, description, openGraph: { title, description, type: "website" } };
 }
 
@@ -33,7 +33,7 @@ export default async function InvitationPage({ params }: Props) {
         rsvp: doctor.rsvp && { status: doctor.rsvp.status, guests: doctor.rsvp.guests },
       }}
       videoUrl={settings.videoUrl}
-      eventTime={settings.eventTime}
+      eventTime={resolveEventTime(settings.eventTime)}
     />
   );
 }

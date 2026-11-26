@@ -9,7 +9,8 @@ export const DEFAULT_WHATSAPP_MESSAGE = `You’re invited to the India launch of
 In Indians, heart risk often starts earlier and runs in families, and a routine checkup can miss it. MyCardioGen is one screening built for Indians to detect that and alert them.
 
 📅 Saturday, 28 November 2026
-📍 Le Méridien, Windsor Place, New Delhi, 7:30 PM
+🕖 7:00 PM onwards
+📍 Le Méridien, Windsor Place, New Delhi
 
 Please open your invitation and RSVP here:
 {link}`;
@@ -17,7 +18,8 @@ Please open your invitation and RSVP here:
 /** Sent with the /reminder page link from the admin. */
 export const REMINDER_WHATSAPP_MESSAGE = `A gentle reminder: you are invited to the launch of MyCardioGen.
 
-📅 Saturday, 28 November 2026, 7:30 PM
+📅 Saturday, 28 November 2026
+🕖 7:00 PM onwards
 📍 Le Méridien, Windsor Place, New Delhi
 
 We would be delighted to have you with us. Please confirm your attendance here:

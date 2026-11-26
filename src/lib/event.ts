@@ -37,6 +37,19 @@ export const HOSTS = [
   },
 ] as const;
 
+/** The launch starts at 7:00 PM IST unless the admin sets another time. */
+export const DEFAULT_EVENT_TIME = "19:00";
+
+/** The admin's start time ("HH:MM"), or the 7:00 PM default when none is set. */
+export function resolveEventTime(eventTime: string | undefined): string {
+  return eventTime && /^\d{2}:\d{2}$/.test(eventTime) ? eventTime : DEFAULT_EVENT_TIME;
+}
+
+/** "7:00 PM" */
+export function shortEventTime(eventTime: string): string {
+  return formatEventTime(eventTime).replace(/ onwards$/, "");
+}
+
 /** Event start as a Date. Without a time the countdown targets the start of the day (IST). */
 export function eventStart(eventTime: string): Date {
   const time = /^\d{2}:\d{2}$/.test(eventTime) ? eventTime : "00:00";
